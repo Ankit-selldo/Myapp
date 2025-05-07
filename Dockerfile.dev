@@ -1,0 +1,37 @@
+FROM ruby:3.4.3-slim
+
+# Install system dependencies
+RUN apt-get update -qq && \
+    apt-get install -y \
+    build-essential \
+    libpq-dev \
+    nodejs \
+    npm \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install yarn
+RUN npm install -g yarn
+
+# Set working directory
+WORKDIR /app
+
+# Install Ruby dependencies
+COPY Gemfile Gemfile.lock ./
+RUN bundle install
+
+# Install JavaScript dependencies
+COPY package.json yarn.lock ./
+RUN yarn install
+
+# Copy the rest of the application
+COPY . .
+
+# Add a script to be executed every time the container starts
+COPY entrypoint.dev.sh /usr/bin/
+RUN chmod +x /usr/bin/entrypoint.dev.sh
+ENTRYPOINT ["entrypoint.dev.sh"]
+
+# Start the main process
+CMD ["rails", "server", "-b", "0.0.0.0"] 

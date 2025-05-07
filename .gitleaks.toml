@@ -1,0 +1,22 @@
+[allowlist]
+description = "Global allow list"
+
+[[allowlist.paths]]
+path = '''go.mod'''
+description = "Go modules file"
+
+[[allowlist.paths]]
+path = '''go.sum'''
+description = "Go modules file"
+
+[[allowlist.paths]]
+path = '''package-lock.json'''
+description = "NPM lock file"
+
+[[allowlist.paths]]
+path = '''yarn.lock'''
+description = "Yarn lock file"
+
+[[allowlist.paths]]
+path = '''Gemfile.lock'''
+description = "Ruby Gemfile lock" 

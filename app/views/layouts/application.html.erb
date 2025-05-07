@@ -1,24 +1,43 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "My App" %></title>
+    <title><%= content_for(:title) || ENV.fetch('APP_NAME', 'My App') %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#007bff">
+    <meta name="description" content="<%= ENV.fetch('APP_DESCRIPTION', 'A modern web application') %>">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+    <%# PWA manifest %>
+    <%= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
+    <%# PWA icons %>
+    <link rel="icon" href="/icons/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <link rel="mask-icon" href="/icons/mask-icon.svg" color="#007bff">
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+
+    <%# Register service worker %>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('<%= pwa_service_worker_path(format: :js) %>')
+            .then(registration => {
+              console.log('ServiceWorker registered:', registration);
+            })
+            .catch(error => {
+              console.log('ServiceWorker registration failed:', error);
+            });
+        });
+      }
+    </script>
   </head>
 
   <body>
@@ -26,13 +45,30 @@
       <% if notice %>
         <div class="notice"><%= notice %></div>
       <% end %>
+      <% if alert %>
+        <div class="alert"><%= alert %></div>
+      <% end %>
+
       <nav>
         <%= link_to "Home", root_path %>
-        <%= button_to "Log out", session_path, method: :delete, class: "button" if authenticated? %>
+        <%= link_to "Blog", blog_index_path %>
+        <% if authenticated? %>
+          <div class="user-menu">
+            <span class="user-name"><%= Current.user.name %></span>
+            <%= button_to "Log out", session_path, method: :delete, class: "button" %>
+          </div>
+        <% else %>
+          <%= link_to "Log in", new_session_path, class: "button" %>
+        <% end %>
       </nav>
+
       <main>
         <%= yield %>
       </main>
+
+      <footer>
+        <p>&copy; <%= Time.current.year %> <%= ENV.fetch('APP_NAME', 'My App') %>. All rights reserved.</p>
+      </footer>
     </div>
   </body>
 </html>

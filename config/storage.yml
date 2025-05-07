@@ -32,3 +32,22 @@ local:
 #   service: Mirror
 #   primary: local
 #   mirrors: [ amazon, google, microsoft ]
+
+amazon:
+  service: S3
+  access_key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+  secret_access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+  region: <%= ENV['AWS_REGION'] %>
+  bucket: <%= ENV['AWS_BUCKET'] %>
+
+google:
+  service: GCS
+  credentials: <%= ENV['GOOGLE_CLOUD_CREDENTIALS'].present? ? JSON.parse(ENV['GOOGLE_CLOUD_CREDENTIALS']) : nil %>
+  project: <%= ENV['GOOGLE_CLOUD_PROJECT'] %>
+  bucket: <%= ENV['GOOGLE_CLOUD_BUCKET'] %>
+
+microsoft:
+  service: AzureStorage
+  storage_account_name: <%= ENV['AZURE_STORAGE_ACCOUNT'] %>
+  storage_access_key: <%= ENV['AZURE_STORAGE_ACCESS_KEY'] %>
+  container: <%= ENV['AZURE_CONTAINER'] %>

@@ -2,7 +2,7 @@
 service: my_app
 
 # Name of the container image.
-image: your-user/my_app
+image: ankit.godara/my_app
 
 # Deploy to these servers.
 servers:
@@ -16,7 +16,7 @@ proxy:
 
 # Credentials for your image host.
 registry:
-  username: ankit.godara@sell.do
+  username: ankit.godara
   password:
     - KAMAL_REGISTRY_PASSWORD
 

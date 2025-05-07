@@ -1,0 +1,43 @@
+<article class="blog-post-detail">
+  <header>
+    <h1><%= @blog_post.title %></h1>
+    
+    <div class="post-meta">
+      <span class="author">By <%= @blog_post.author.name %></span>
+      <span class="date"><%= time_tag @blog_post.created_at, format: :long %></span>
+      <span class="status"><%= @blog_post.status.titleize %></span>
+    </div>
+
+    <% if authenticated? && (Current.user.admin? || (Current.user.editor? && @blog_post.author == Current.user)) %>
+      <div class="actions">
+        <%= link_to "Edit", edit_blog_path(@blog_post), class: "button" %>
+        <%= button_to "Delete", blog_path(@blog_post), method: :delete, 
+            class: "button", data: { turbo_confirm: "Are you sure?" } %>
+      </div>
+    <% end %>
+  </header>
+
+  <% if @blog_post.featured_image.attached? %>
+    <div class="featured-image">
+      <%= image_tag @blog_post.featured_image %>
+    </div>
+  <% end %>
+
+  <div class="content">
+    <%= @blog_post.content %>
+  </div>
+
+  <footer>
+    <div class="share-buttons">
+      <h3>Share this post</h3>
+      <%= link_to "Share on Twitter", 
+          "https://twitter.com/intent/tweet?text=#{CGI.escape(@blog_post.title)}&url=#{CGI.escape(blog_url(@blog_post))}",
+          target: "_blank", class: "button" %>
+      <%= link_to "Share on Facebook",
+          "https://www.facebook.com/sharer/sharer.php?u=#{CGI.escape(blog_url(@blog_post))}",
+          target: "_blank", class: "button" %>
+    </div>
+  </footer>
+</article>
+
+<%= link_to "← Back to Blog", blog_index_path, class: "back-link" %> 

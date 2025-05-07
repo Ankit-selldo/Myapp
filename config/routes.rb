@@ -15,7 +15,12 @@ Rails.application.routes.draw do
   end
 
   # Blog routes
-  resources :blog, only: [ :show ], param: :title
+  resources :blog, only: [ :index, :show, :new, :create, :edit, :update, :destroy ], param: :title
+
+  # PWA routes
+  get "manifest" => "pwa#manifest", as: :pwa_manifest
+  get "service-worker" => "pwa#service_worker", as: :pwa_service_worker
+  get "offline" => "pwa#offline", as: :offline
 
   # Health check route
   get "up" => "rails/health#show", as: :rails_health_check

@@ -1,0 +1,15 @@
+Reset Your Password
+
+Hello <%= @user.name %>,
+
+We received a request to reset your password. If you didn't make this request, you can safely ignore this email.
+
+To reset your password, copy and paste this URL into your web browser:
+
+<%= @url %>
+
+This link will expire in 2 hours for security reasons.
+
+--
+This email was sent from <%= ENV.fetch("APP_NAME", "My App") %>.
+If you have any questions, please contact our support team. 

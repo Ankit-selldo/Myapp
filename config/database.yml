@@ -18,11 +18,13 @@ default: &default
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
   username: ankit
   password: 123
 
 development:
   <<: *default
+  url: <%= ENV['DATABASE_URL'] %>
   database: my_app_development
 
   # The specified database role being used to connect to PostgreSQL.
@@ -57,6 +59,7 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
+  url: <%= ENV['DATABASE_URL'] %>
   database: my_app_test
 
 # As with config/credentials.yml, you never want to store sensitive information,
@@ -80,20 +83,25 @@ test:
 # for a full overview on how database connection configuration can be specified.
 #
 production:
-  primary: &primary_production
-    <<: *default
-    database: my_app_production
-    username: my_app
-    password: <%= ENV["MY_APP_DATABASE_PASSWORD"] %>
+  <<: *default
+  url: <%= ENV['DATABASE_URL'] %>
+  database: my_app_production
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 10 } %>
+  connect_timeout: 2
+  checkout_timeout: 5
+  variables:
+    statement_timeout: 5000
+  username: my_app
+  password: <%= ENV["MY_APP_DATABASE_PASSWORD"] %>
   cache:
-    <<: *primary_production
+    <<: *default
     database: my_app_production_cache
     migrations_paths: db/cache_migrate
   queue:
-    <<: *primary_production
+    <<: *default
     database: my_app_production_queue
     migrations_paths: db/queue_migrate
   cable:
-    <<: *primary_production
+    <<: *default
     database: my_app_production_cable
     migrations_paths: db/cable_migrate

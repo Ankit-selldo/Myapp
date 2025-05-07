@@ -1,0 +1,178 @@
+const CACHE_VERSION = 'v1';
+const CACHE_NAME = `<%= ENV.fetch('APP_NAME', 'my-app').parameterize %>-${CACHE_VERSION}`;
+
+// Resources to pre-cache
+const PRECACHE_RESOURCES = [
+  '/',
+  '/offline',
+  '/icons/icon-512x512.png',
+  '/icons/icon-192x192.png',
+  '/manifest.json'
+];
+
+// Resources to cache when accessed
+const RUNTIME_RESOURCES = [
+  /\.(?:js|css|woff2?|ttf|eot)$/,
+  /\/api\/v1\//,
+  /\/products\//,
+  /\/blog\//
+];
+
+// Install event - pre-cache static resources
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(PRECACHE_RESOURCES))
+      .then(() => self.skipWaiting())
+  );
+});
+
+// Activate event - clean up old caches
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames
+          .filter(cacheName => cacheName.startsWith('<%= ENV.fetch('APP_NAME', 'my-app').parameterize %>-'))
+          .filter(cacheName => cacheName !== CACHE_NAME)
+          .map(cacheName => caches.delete(cacheName))
+      );
+    }).then(() => self.clients.claim())
+  );
+});
+
+// Fetch event - serve from cache or network
+self.addEventListener('fetch', event => {
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') return;
+
+  // Skip cross-origin requests
+  if (!event.request.url.startsWith(self.location.origin)) return;
+
+  event.respondWith(
+    caches.match(event.request)
+      .then(cachedResponse => {
+        if (cachedResponse) {
+          // Return cached response and fetch updated version in background
+          if (shouldUpdateCache(event.request)) {
+            fetch(event.request)
+              .then(response => {
+                if (response.ok) {
+                  caches.open(CACHE_NAME)
+                    .then(cache => cache.put(event.request, response));
+                }
+              });
+          }
+          return cachedResponse;
+        }
+
+        return fetch(event.request)
+          .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            // Cache the response if it matches our criteria
+            if (shouldCache(event.request)) {
+              const responseToCache = response.clone();
+              caches.open(CACHE_NAME)
+                .then(cache => cache.put(event.request, responseToCache));
+            }
+
+            return response;
+          })
+          .catch(error => {
+            console.error('Fetch failed:', error);
+            // Return offline page for navigation requests
+            if (event.request.mode === 'navigate') {
+              return caches.match('/offline');
+            }
+            return null;
+          });
+      })
+  );
+});
+
+// Background sync for offline form submissions
+self.addEventListener('sync', event => {
+  if (event.tag === 'sync-forms') {
+    event.waitUntil(syncForms());
+  }
+});
+
+// Push notification handling
+self.addEventListener('push', event => {
+  if (!event.data) return;
+
+  const data = event.data.json();
+  const options = {
+    body: data.body,
+    icon: '/icons/icon-192x192.png',
+    badge: '/icons/badge-72x72.png',
+    data: data.url,
+    actions: data.actions || []
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+
+  if (event.action) {
+    // Handle notification action clicks
+    handleNotificationAction(event.action, event.notification.data);
+  } else {
+    // Handle notification clicks
+    event.waitUntil(
+      clients.openWindow(event.notification.data || '/')
+    );
+  }
+});
+
+// Helper functions
+function shouldCache(request) {
+  const url = new URL(request.url);
+  return RUNTIME_RESOURCES.some(pattern => {
+    return pattern instanceof RegExp ? 
+      pattern.test(url.pathname) : 
+      url.pathname.includes(pattern);
+  });
+}
+
+function shouldUpdateCache(request) {
+  const url = new URL(request.url);
+  // Update cached resources that are likely to change
+  return url.pathname.startsWith('/api/') || 
+         url.pathname.startsWith('/products/') ||
+         url.pathname.startsWith('/blog/');
+}
+
+async function syncForms() {
+  const forms = await getStoredForms();
+  return Promise.all(forms.map(form => {
+    return fetch(form.url, {
+      method: form.method,
+      headers: form.headers,
+      body: form.body
+    }).then(response => {
+      if (response.ok) {
+        return removeStoredForm(form.id);
+      }
+      throw new Error('Sync failed');
+    });
+  }));
+}
+
+function handleNotificationAction(action, data) {
+  switch (action) {
+    case 'view':
+      clients.openWindow(data);
+      break;
+    case 'dismiss':
+      // Do nothing, notification is already closed
+      break;
+    default:
+      console.warn(`Unhandled notification action: ${action}`);
+  }
+} 

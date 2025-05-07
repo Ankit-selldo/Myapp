@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>You are offline - <%= ENV.fetch('APP_NAME', 'My App') %></title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: #f8f9fa;
+      color: #333;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 600px;
+      padding: 40px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
+      color: #007bff;
+    }
+
+    p {
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+
+    .icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      margin-top: 20px;
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+
+    .button:hover {
+      background-color: #0056b3;
+    }
+
+    .cached-content {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #dee2e6;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="icon">📡</div>
+    <h1>You're Offline</h1>
+    <p>Sorry, it looks like you've lost your internet connection.</p>
+    <p>Don't worry though! You can still access previously viewed content.</p>
+    
+    <button onclick="window.location.reload()" class="button">
+      Try Again
+    </button>
+
+    <div class="cached-content">
+      <h2>Available Offline</h2>
+      <div id="cached-pages">
+        <!-- Dynamically populated by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Check for cached pages and display them
+    if ('caches' in window) {
+      caches.open('<%= ENV.fetch('APP_NAME', 'my-app').parameterize %>-v1')
+        .then(cache => {
+          return cache.keys()
+            .then(requests => {
+              const cachedPages = document.getElementById('cached-pages');
+              const urls = requests
+                .map(request => request.url)
+                .filter(url => url.includes(window.location.origin))
+                .map(url => url.replace(window.location.origin, ''))
+                .filter(path => path !== '/offline' && path !== '/');
+
+              if (urls.length > 0) {
+                const list = document.createElement('ul');
+                urls.forEach(url => {
+                  const item = document.createElement('li');
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.textContent = url;
+                  item.appendChild(link);
+                  list.appendChild(item);
+                });
+                cachedPages.appendChild(list);
+              } else {
+                cachedPages.innerHTML = '<p>No cached pages available.</p>';
+              }
+            });
+        });
+    }
+  </script>
+</body>
+</html> 

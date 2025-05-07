@@ -15,7 +15,6 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: my_app_test
         ports:
           - 5432:5432
         options: >-
@@ -24,28 +23,92 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-      - name: Set up database
-        env:
-          RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/my_app_test
-        run: |
-          bundle exec rails db:create
-          bundle exec rails db:schema:load
-      - name: Run tests
-        env:
-          RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/my_app_test
-        run: bundle exec rails test
-      - name: Run Rubocop
-        run: bundle exec rubocop
-      - name: Run Brakeman
-        run: bundle exec brakeman
+    - uses: actions/checkout@v4
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.4.3'
+        bundler-cache: true
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'yarn'
+
+    - name: Install dependencies
+      run: |
+        yarn install --frozen-lockfile
+
+    - name: Set up database
+      run: |
+        bundle exec rails db:create
+        bundle exec rails db:schema:load
+      env:
+        RAILS_ENV: test
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/my_app_test
+
+    - name: Run tests
+      run: |
+        bundle exec rails test
+        bundle exec rails test:system
+      env:
+        RAILS_ENV: test
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/my_app_test
+        REDIS_URL: redis://localhost:6379/1
+
+    - name: Run RuboCop
+      run: bundle exec rubocop
+
+    - name: Run Brakeman
+      run: bundle exec brakeman
+
+    - name: Run Bundle Audit
+      run: bundle exec bundle-audit check --update
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.4.3'
+        bundler-cache: true
+
+    - name: Install Kamal
+      run: gem install kamal
+
+    - name: Deploy to production
+      run: kamal deploy
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        REDIS_URL: ${{ secrets.REDIS_URL }}
+        SMTP_HOST: ${{ secrets.SMTP_HOST }}
+        SMTP_PORT: ${{ secrets.SMTP_PORT }}
+        SMTP_DOMAIN: ${{ secrets.SMTP_DOMAIN }}
+        SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+        SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        APP_NAME: ${{ secrets.APP_NAME }}
+        APP_HOST: ${{ secrets.APP_HOST }}
 
   scan_ruby:
     runs-on: ubuntu-latest
