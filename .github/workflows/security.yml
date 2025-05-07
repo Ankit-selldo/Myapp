@@ -90,8 +90,5 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Run Gitleaks
-      uses: zricethezav/gitleaks-action@v2
-      with:
-        config-path: .gitleaks.toml
-        redact: true 
+   - name: Run Gitleaks
+    uses: zricethezav/gitleaks-action@v2
