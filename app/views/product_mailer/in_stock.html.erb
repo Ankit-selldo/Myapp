@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h1>Good news!</h1>
+    <p>
+      <%= @product.name %> is now back in stock!
+    </p>
+    <p>
+      You can view the product here: <%= product_url(@product) %>
+    </p>
+    <p>
+      To unsubscribe from these notifications, click here: <%= @unsubscribe_url %>
+    </p>
+  </body>
+</html>

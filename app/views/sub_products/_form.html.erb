@@ -1,0 +1,67 @@
+<%= form_with model: [@product, sub_product], multipart: true, data: { turbo: true } do |form| %>
+  <% if sub_product.errors.any? %>
+    <div class="error-messages">
+      <h2><%= pluralize(sub_product.errors.count, "error") %> prohibited this sub product from being saved:</h2>
+      <ul>
+        <% sub_product.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :name, "Variant Name", style: "display: block" %>
+    <%= form.text_field :name, class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :price, style: "display: block" %>
+    <%= form.number_field :price, step: "0.01", class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :color, style: "display: block" %>
+    <%= form.select :color, 
+        ['Red', 'Blue', 'Black', 'White', 'Green', 'Yellow', 'Purple', 'Orange', 'Pink', 'Gray'],
+        { include_blank: 'Select a color' },
+        { class: "form-control", required: true } %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :size, style: "display: block" %>
+    <%= form.select :size,
+        ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+        { include_blank: 'Select a size' },
+        { class: "form-control", required: true } %>
+  </div>
+
+  <div class="form-group">
+    <% if sub_product.images.attached? %>
+      <div class="current-images">
+        <h3>Current Images</h3>
+        <div class="image-grid">
+          <% sub_product.images.each do |image| %>
+            <div class="image-item">
+              <%= image_tag image %>
+              <div class="image-actions">
+                <%= button_to "Remove", 
+                    remove_image_product_sub_product_path(@product, sub_product, image_id: image.id),
+                    method: :delete,
+                    data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to remove this image?" },
+                    class: "button" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <%= form.label :images, "Add More Images", style: "display: block" %>
+    <%= form.file_field :images, multiple: true, accept: "image/*", class: "form-control", data: { direct_upload: true } %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit class: "button", data: { disable_with: "Updating..." } %>
+  </div>
+<% end %> 

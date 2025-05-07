@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  product: one
+  email: MyString
+
+two:
+  product: two
+  email: MyString
+
+david:
+  email: david@example.org
+  product: tshirt
+  unsubscribe_token: <%= SecureRandom.hex(10) %>
+
+john:
+  email: john@example.org
+  product: tshirt
+  unsubscribe_token: <%= SecureRandom.hex(10) %>

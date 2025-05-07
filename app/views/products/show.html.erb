@@ -1,0 +1,82 @@
+<% if notice %>
+  <p class="notice"><%= notice %></p>
+<% end %>
+
+<section class="product">
+  <div class="product-images">
+    <% if @product.featured_image.attached? %>
+      <div class="featured-image">
+        <%= image_tag @product.featured_image %>
+      </div>
+    <% end %>
+    
+    <% if @product.images.attached? %>
+      <div class="additional-images">
+        <% @product.images.each do |image| %>
+          <div class="image">
+            <%= image_tag image %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  
+  <div class="product-details">
+    <% cache @product do %>
+      <h1><%= @product.name %></h1>
+      <div class="description">
+        <%= @product.description %>
+      </div>
+    <% end %>
+    
+    <%= render "inventory", product: @product %>
+    
+    <div class="sub-products">
+      <h2>Available Variants</h2>
+      <% if @product.sub_products.any? %>
+        <div class="variants-grid">
+          <% @product.sub_products.each do |variant| %>
+            <div class="variant-card">
+              <% if variant.images.attached? %>
+                <%= image_tag variant.images.first %>
+              <% end %>
+              <div class="variant-details">
+                <h3><%= variant.name %></h3>
+                <p class="price">$<%= number_with_precision(variant.price, precision: 2) %></p>
+                <p class="details">
+                  Color: <%= variant.color %><br>
+                  Size: <%= variant.size %>
+                </p>
+                <% if authenticated? %>
+                  <div class="variant-actions">
+                    <%= link_to "Edit", edit_product_sub_product_path(@product, variant), class: "button" %>
+                    <%= button_to "Delete", product_sub_product_path(@product, variant), 
+                        method: :delete, 
+                        data: { turbo_confirm: "Are you sure?" }, 
+                        class: "button" %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p>No variants available yet.</p>
+      <% end %>
+      
+      <% if authenticated? %>
+        <div class="actions">
+          <%= link_to "Add New Variant", new_product_sub_product_path(@product), class: "button" %>
+        </div>
+      <% end %>
+    </div>
+    
+    <div class="actions">
+      <%= link_to "Back", products_path, class: "button" %>
+      <% if authenticated? %>
+        <%= link_to "Edit", edit_product_path(@product), class: "button" %>
+        <%= button_to "Delete", @product, method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "button" %>
+      <% end %>
+    </div>
+  </div>
+</section>
