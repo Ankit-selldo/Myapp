@@ -20,22 +20,15 @@ jobs:
         ruby-version: '3.4.3'
         bundler-cache: true
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'yarn'
-
     - name: Install dependencies
-      run: |
-        yarn install --frozen-lockfile
+      run: bundle install --jobs 4 --retry 3
 
     - name: Run Snyk to check for vulnerabilities
-      uses: snyk/actions/node@master
+      uses: snyk/actions/cli@master
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
-        args: --severity-threshold=high
+        args: test --file=Gemfile.lock --severity-threshold=high
 
   codeql:
     runs-on: ubuntu-latest
@@ -61,6 +54,8 @@ jobs:
       uses: github/codeql-action/analyze@v3
 
   dependency-review:
+    # This job only works on pull requests, not on direct pushes.
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -90,5 +85,5 @@ jobs:
       with:
         fetch-depth: 0
 
-   - name: Run Gitleaks
-    uses: zricethezav/gitleaks-action@v2
+    - name: Run Gitleaks
+      uses: zricethezav/gitleaks-action@v2
