@@ -1,6 +1,6 @@
 class PwaController < ApplicationController
   allow_unauthenticated_access
-  skip_before_action :verify_authenticity_token, only: [:manifest, :service_worker]
+  protect_from_forgery with: :exception, except: [:manifest, :service_worker]
 
   def manifest
     render formats: :json
