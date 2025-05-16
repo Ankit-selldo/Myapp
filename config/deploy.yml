@@ -1,13 +1,19 @@
 # Name of your application. Used to uniquely configure containers.
-service: my_app
+service: crazyshop
 
 # Name of the container image.
-image: ankit.godara/my_app
+image: crazyshopdemo/crazyshop
 
 # Deploy to these servers.
 servers:
   web:
-    - 192.168.0.1
+    hosts:
+      - 1.2.3.4 # <-- Replace with your actual server IP when ready
+    labels:
+      traefik.http.routers.crazyshop.rule: Host(`crazyshop-demo.com`)
+      traefik.http.routers.crazyshop.entrypoints: websecure
+      traefik.http.routers.crazyshop.tls: true
+      traefik.http.routers.crazyshop.tls.certresolver: letsencrypt
 
 # Enable SSL auto certification via Let's Encrypt
 proxy:
@@ -16,18 +22,28 @@ proxy:
 
 # Credentials for your image host.
 registry:
-  username: ankit.godara
+  username:
+    - DOCKER_USERNAME
   password:
-    - KAMAL_REGISTRY_PASSWORD
+    - DOCKER_PASSWORD
 
 # Inject ENV variables into containers
 env:
   secret:
     - RAILS_MASTER_KEY
     - DATABASE_URL
+    - REDIS_URL
+    - SMTP_HOST
+    - SMTP_PORT
+    - SMTP_DOMAIN
+    - SMTP_USERNAME
+    - SMTP_PASSWORD
+    - APP_NAME
+    - APP_HOST
   clear:
-    RAILS_SERVE_STATIC_FILES: true
+    RAILS_ENV: production
     RAILS_LOG_TO_STDOUT: true
+    RAILS_SERVE_STATIC_FILES: true
 
 # Aliases for common commands
 aliases:
@@ -38,7 +54,7 @@ aliases:
 
 # Use a persistent storage volume
 volumes:
-  - "my_app_storage:/rails/storage"
+  - /var/lib/crazyshop/storage:/app/storage
 
 # Configure the image builder
 builder:

@@ -1,0 +1,138 @@
+<%# New Discount Form %>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="md:flex md:items-center md:justify-between">
+    <div class="flex-1 min-w-0">
+      <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+        New Discount
+      </h2>
+    </div>
+  </div>
+
+  <div class="mt-8">
+    <div class="md:grid md:grid-cols-3 md:gap-6">
+      <div class="md:col-span-1">
+        <div class="px-4 sm:px-0">
+          <h3 class="text-lg font-medium leading-6 text-gray-900">Discount Details</h3>
+          <p class="mt-1 text-sm text-gray-600">
+            Create a new discount code for your store.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-5 md:mt-0 md:col-span-2">
+        <%= form_with(model: [:admin, @discount], class: "space-y-6") do |f| %>
+          <div class="shadow sm:rounded-md sm:overflow-hidden">
+            <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+              <%# Code field %>
+              <div>
+                <%= f.label :code, class: "block text-sm font-medium text-gray-700" %>
+                <div class="mt-1">
+                  <%= f.text_field :code, class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md", placeholder: "SUMMER2024" %>
+                </div>
+                <p class="mt-2 text-sm text-gray-500">The code customers will enter at checkout.</p>
+              </div>
+
+              <%# Description field %>
+              <div>
+                <%= f.label :description, class: "block text-sm font-medium text-gray-700" %>
+                <div class="mt-1">
+                  <%= f.text_area :description, rows: 3, class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md", placeholder: "Summer sale discount" %>
+                </div>
+              </div>
+
+              <%# Type and Amount fields %>
+              <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <%= f.label :discount_type, class: "block text-sm font-medium text-gray-700" %>
+                  <div class="mt-1">
+                    <%= f.select :discount_type, 
+                        options_for_select([
+                          ['Percentage', 'percentage'],
+                          ['Fixed Amount', 'fixed_amount']
+                        ]), 
+                        {}, 
+                        class: "mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" %>
+                  </div>
+                </div>
+
+                <div>
+                  <%= f.label :amount, class: "block text-sm font-medium text-gray-700" %>
+                  <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span class="text-gray-500 sm:text-sm">₹</span>
+                    </div>
+                    <%= f.number_field :amount, step: :any, class: "focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md", placeholder: "0.00" %>
+                  </div>
+                </div>
+              </div>
+
+              <%# Minimum Purchase field %>
+              <div>
+                <%= f.label :minimum_purchase, class: "block text-sm font-medium text-gray-700" %>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span class="text-gray-500 sm:text-sm">₹</span>
+                  </div>
+                  <%= f.number_field :minimum_purchase, step: :any, class: "focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md", placeholder: "0.00" %>
+                </div>
+                <p class="mt-2 text-sm text-gray-500">Minimum cart value required to apply this discount. Leave blank for no minimum.</p>
+              </div>
+
+              <%# Date Range fields %>
+              <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <%= f.label :starts_at, "Start Date", class: "block text-sm font-medium text-gray-700" %>
+                  <div class="mt-1">
+                    <%= f.datetime_local_field :starts_at, class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+                  </div>
+                </div>
+
+                <div>
+                  <%= f.label :expires_at, "End Date", class: "block text-sm font-medium text-gray-700" %>
+                  <div class="mt-1">
+                    <%= f.datetime_local_field :expires_at, class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+                  </div>
+                </div>
+              </div>
+
+              <%# Active Status %>
+              <div class="flex items-start">
+                <div class="flex items-center h-5">
+                  <%= f.check_box :active, class: "focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" %>
+                </div>
+                <div class="ml-3 text-sm">
+                  <%= f.label :active, "Active", class: "font-medium text-gray-700" %>
+                  <p class="text-gray-500">Enable this discount immediately</p>
+                </div>
+              </div>
+
+              <%# Product Selection %>
+              <div>
+                <%= f.label :product_ids, "Apply to Products", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <div class="max-h-48 overflow-y-auto border border-gray-300 rounded-md p-2">
+                  <% Product.order(:name).each do |product| %>
+                    <div class="flex items-center mb-2">
+                      <%= f.check_box :product_ids, 
+                          { multiple: true }, 
+                          product.id, 
+                          nil %>
+                      <%= f.label "product_ids_#{product.id}", 
+                          product.name, 
+                          class: "ml-2 text-sm text-gray-700" %>
+                    </div>
+                  <% end %>
+                </div>
+                <p class="mt-2 text-sm text-gray-500">Select products this discount can be applied to. Leave empty to apply to all products.</p>
+              </div>
+            </div>
+
+            <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+              <%= link_to "Cancel", admin_discounts_path, class: "inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-2" %>
+              <%= f.submit "Create Discount", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div> 

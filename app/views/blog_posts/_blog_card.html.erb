@@ -1,0 +1,31 @@
+<%# Blog Card %>
+<div class="bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
+  <div class="relative aspect-w-16 aspect-h-9">
+    <% if post.featured_image.attached? %>
+      <%= image_tag post.featured_image, class: "w-full h-48 object-cover" %>
+    <% else %>
+      <img src="https://dummyimage.com/800x450/cccccc/ffffff&text=No+Image" alt="No image" class="w-full h-48 object-cover">
+    <% end %>
+  </div>
+  
+  <div class="p-6">
+    <div class="flex items-center text-sm text-gray-500 mb-4">
+      <span><%= post.created_at.strftime("%B %d, %Y") %></span>
+      <span class="mx-2">•</span>
+      <span><%= post.author.name %></span>
+    </div>
+    
+    <h3 class="text-xl font-semibold text-gray-900 mb-3">
+      <%= link_to post.title, blog_post_path(post), class: "hover:text-blue-600" %>
+    </h3>
+    
+    <p class="text-gray-600 mb-4 line-clamp-3">
+      <%= strip_tags(post.content.to_plain_text).truncate(150) %>
+    </p>
+    
+    <%= link_to blog_post_path(post), class: "inline-flex items-center text-blue-600 hover:text-blue-800" do %>
+      Read More
+      <i class="fas fa-arrow-right ml-2"></i>
+    <% end %>
+  </div>
+</div> 

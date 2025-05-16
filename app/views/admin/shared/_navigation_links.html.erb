@@ -1,0 +1,41 @@
+<%= link_to admin_dashboard_path, 
+    class: "group flex items-center px-2 py-2 #{mobile ? 'text-base' : 'text-sm'} font-medium rounded-md #{current_page?(admin_dashboard_path) ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}" do %>
+  <i class="fas fa-home #{mobile ? 'mr-4' : 'mr-3'} flex-shrink-0 h-6 w-6"></i>
+  Dashboard
+<% end %>
+
+<%= link_to admin_products_path,
+    class: "group flex items-center px-2 py-2 #{mobile ? 'text-base' : 'text-sm'} font-medium rounded-md #{controller_name == 'products' ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}" do %>
+  <i class="fas fa-box #{mobile ? 'mr-4' : 'mr-3'} flex-shrink-0 h-6 w-6"></i>
+  Products
+<% end %>
+
+<%= link_to admin_orders_path,
+    class: "group flex items-center px-2 py-2 #{mobile ? 'text-base' : 'text-sm'} font-medium rounded-md #{controller_name == 'orders' ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}" do %>
+  <i class="fas fa-shopping-cart #{mobile ? 'mr-4' : 'mr-3'} flex-shrink-0 h-6 w-6"></i>
+  Orders
+<% end %>
+
+<%= link_to admin_customers_path,
+    class: "group flex items-center px-2 py-2 #{mobile ? 'text-base' : 'text-sm'} font-medium rounded-md #{controller_name == 'customers' ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}" do %>
+  <i class="fas fa-users #{mobile ? 'mr-4' : 'mr-3'} flex-shrink-0 h-6 w-6"></i>
+  Customers
+<% end %>
+
+<%= link_to admin_analytics_path,
+    class: "group flex items-center px-2 py-2 #{mobile ? 'text-base' : 'text-sm'} font-medium rounded-md #{controller_name == 'analytics' ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}" do %>
+  <i class="fas fa-chart-bar #{mobile ? 'mr-4' : 'mr-3'} flex-shrink-0 h-6 w-6"></i>
+  Analytics
+<% end %>
+
+<%= link_to admin_discounts_path,
+    class: "group flex items-center px-2 py-2 #{mobile ? 'text-base' : 'text-sm'} font-medium rounded-md #{controller_name == 'discounts' ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}" do %>
+  <i class="fas fa-tag #{mobile ? 'mr-4' : 'mr-3'} flex-shrink-0 h-6 w-6"></i>
+  Discounts
+<% end %>
+
+<%= link_to admin_settings_path,
+    class: "group flex items-center px-2 py-2 #{mobile ? 'text-base' : 'text-sm'} font-medium rounded-md #{controller_name == 'settings' ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}" do %>
+  <i class="fas fa-cog #{mobile ? 'mr-4' : 'mr-3'} flex-shrink-0 h-6 w-6"></i>
+  Settings
+<% end %> 

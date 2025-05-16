@@ -1,9 +1,11 @@
 class ApplicationController < ActionController::Base
   include Authentication
+  include Authorization
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
 
   around_action :switch_locale
+  before_action :set_current_attributes
 
   protect_from_forgery with: :exception
 
@@ -18,6 +20,10 @@ class ApplicationController < ActionController::Base
 
   private
 
+  def set_current_attributes
+    Current.user = current_user
+  end
+
   def not_found
     respond_to do |format|
       format.html { render file: Rails.root.join('public/404.html'), status: :not_found }
@@ -28,14 +34,14 @@ class ApplicationController < ActionController::Base
   def bad_request(exception)
     respond_to do |format|
       format.html { render file: Rails.root.join('public/400.html'), status: :bad_request }
-      format.json { render json: { error: exception.message }, status: :bad_request }
+      format.json { render json: { error: 'Bad request' }, status: :bad_request }
     end
   end
 
   def unprocessable_entity
     respond_to do |format|
       format.html { render file: Rails.root.join('public/422.html'), status: :unprocessable_entity }
-      format.json { render json: { error: 'Invalid authenticity token' }, status: :unprocessable_entity }
+      format.json { render json: { error: 'Unprocessable entity' }, status: :unprocessable_entity }
     end
   end
 

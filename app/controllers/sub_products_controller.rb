@@ -1,4 +1,8 @@
 class SubProductsController < ApplicationController
+  include Authorization
+  
+  before_action :authenticate
+  before_action :require_admin
   before_action :set_product
   before_action :set_sub_product, only: [ :edit, :update, :destroy, :remove_image ]
 
@@ -44,10 +48,13 @@ class SubProductsController < ApplicationController
   def remove_image
     image = @sub_product.images.find(params[:image_id])
     image.purge
+    
     respond_to do |format|
       format.html { redirect_to edit_product_sub_product_path(@product, @sub_product), notice: "Image was successfully removed." }
       format.turbo_stream { redirect_to edit_product_sub_product_path(@product, @sub_product), notice: "Image was successfully removed." }
     end
+  rescue ActiveRecord::RecordNotFound
+    redirect_to edit_product_sub_product_path(@product, @sub_product), alert: "Image not found."
   end
 
   private

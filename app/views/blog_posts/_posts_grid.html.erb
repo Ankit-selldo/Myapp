@@ -1,0 +1,81 @@
+<%# Blog Posts Grid %>
+<div id="blog_posts_results">
+  <div class="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3">
+    <% if blog_posts.any? %>
+      <% blog_posts.each do |post| %>
+        <article class="group relative flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white transition-all duration-300 hover:shadow-lg">
+          <%# Image Container %>
+          <div class="aspect-w-3 aspect-h-4 bg-gray-200 group-hover:opacity-75 sm:aspect-none sm:h-96 overflow-hidden">
+            <% if post.featured_image.attached? %>
+              <%= image_tag post.featured_image, 
+                  class: "h-full w-full object-cover object-center sm:h-full sm:w-full transition-transform duration-300 group-hover:scale-105" %>
+            <% else %>
+              <img src="https://dummyimage.com/600x400/cccccc/ffffff&text=Blog+Post" 
+                   alt="Blog post" 
+                   class="h-full w-full object-cover object-center sm:h-full sm:w-full transition-transform duration-300 group-hover:scale-105">
+            <% end %>
+          </div>
+          
+          <%# Content Container %>
+          <div class="flex flex-1 flex-col space-y-4 p-6">
+            <%# Category and Reading Time %>
+            <div class="flex items-center space-x-2">
+              <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
+                <%= post.category %>
+              </span>
+              <span class="text-sm text-gray-500"><%= post.reading_time %> min read</span>
+            </div>
+            
+            <%# Title %>
+            <h3 class="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+              <%= link_to post.title, blog_post_path(post), class: "hover:text-blue-600" %>
+            </h3>
+            
+            <%# Excerpt %>
+            <p class="text-base text-gray-500 line-clamp-3">
+              <%= strip_tags(post.content.to_plain_text) %>
+            </p>
+            
+            <%# Author and Date %>
+            <div class="mt-6 flex items-center">
+              <div class="flex-shrink-0">
+                <% if post.author.avatar.attached? %>
+                  <%= image_tag post.author.avatar, class: "h-10 w-10 rounded-full object-cover" %>
+                <% else %>
+                  <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <span class="text-blue-800 text-sm font-medium"><%= post.author.name.first %></span>
+                  </div>
+                <% end %>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm font-medium text-gray-900"><%= post.author.name %></p>
+                <div class="flex space-x-1 text-sm text-gray-500">
+                  <time datetime="<%= post.published_at&.iso8601 %>">
+                    <%= post.published_at&.strftime("%B %d, %Y") %>
+                  </time>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      <% end %>
+    <% else %>
+      <%# Empty State %>
+      <div class="col-span-full text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-2-2h-2m-4 0h4"></path>
+        </svg>
+        <h3 class="mt-2 text-lg font-medium text-gray-900">No posts found</h3>
+        <p class="mt-1 text-sm text-gray-500">Try adjusting your search or filter to find what you're looking for.</p>
+        <%= link_to "View all posts", blog_posts_path, class: "mt-6 inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" %>
+      </div>
+    <% end %>
+  </div>
+
+  <%# Pagination %>
+  <% if blog_posts.any? %>
+    <div class="mt-12 flex justify-center">
+      <%= paginate blog_posts, theme: :tailwind %>
+    </div>
+  <% end %>
+</div> 

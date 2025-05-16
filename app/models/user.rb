@@ -1,58 +1,123 @@
 class User < ApplicationRecord
-  has_secure_password
+  # Include default devise modules. Others available are:
+  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :validatable
+
+  has_one :cart, dependent: :destroy
   has_many :sessions, dependent: :destroy
   has_many :products, dependent: :destroy
   has_many :blog_posts, dependent: :destroy
+  has_many :orders
 
-  normalizes :email_address, with: ->(e) { e.strip.downcase }
-
-  validates :email_address, presence: true, uniqueness: true,
-            format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :password, length: { minimum: 8 }, if: -> { new_record? || password.present? }
   validates :name, presence: true
-  validates :role, presence: true, inclusion: { in: %w[admin editor user] }
+  validates :email, 
+            presence: true, 
+            uniqueness: { case_sensitive: false },
+            format: { 
+              with: /\A[^@\s]+@[^@\s]+\.[^@\s]+\z/,
+              message: "must be a valid email address (e.g., user@example.com)"
+            },
+            length: { maximum: 255 }
 
-  before_validation :set_default_role, on: :create
+  enum :role, { customer: 0, admin: 1 }, default: :customer
+
   before_save :normalize_email
+  before_create :generate_verification_token
 
-  scope :admins, -> { where(role: 'admin') }
-  scope :editors, -> { where(role: 'editor') }
-  scope :regular_users, -> { where(role: 'user') }
+  scope :admins, -> { where(role: :admin) }
+  scope :editors, -> { where(role: :editor) }
+  scope :regular_users, -> { where(role: :user) }
+
+  # Override Devise's find_first_by_auth_conditions method
+  def self.find_first_by_auth_conditions(warden_conditions)
+    conditions = warden_conditions.dup
+    if (email = conditions.delete(:email))
+      where(conditions).where(["lower(email) = :value", { value: email.downcase }]).first
+    elsif conditions[:email].nil?
+      where(conditions).first
+    else
+      where(conditions).first
+    end
+  end
 
   def admin?
-    role == 'admin'
+    role == "admin"
   end
 
   def editor?
-    role == 'editor'
+    role.to_sym == :editor
   end
 
   def regular_user?
-    role == 'user'
+    role.to_sym == :user
   end
 
   def generate_password_reset_token!
-    update!(
-      password_reset_token: generate_token,
-      password_reset_sent_at: Time.current
-    )
+    send_reset_password_instructions
   end
 
   def password_reset_expired?
-    password_reset_sent_at < 2.hours.ago
+    reset_password_sent_at < 2.hours.ago
+  end
+
+  def generate_otp!
+    self.otp = SecureRandom.random_number(100000..999999).to_s
+    self.otp_sent_at = Time.current
+    save!(validate: false)
+    Rails.logger.info "Generated OTP for user #{id}: #{otp}"
+  end
+
+  def otp_valid?
+    return false unless otp_sent_at.present?
+    time_elapsed = Time.current - otp_sent_at
+    is_valid = time_elapsed <= 10.minutes
+    Rails.logger.info "OTP validation for user #{id}: elapsed time #{time_elapsed.to_i}s, valid: #{is_valid}"
+    is_valid
+  end
+
+  def verify_email!
+    update!(
+      email_verified_at: Time.current,
+      otp: nil,
+      otp_sent_at: nil
+    )
+    Rails.logger.info "Email verified for user #{id}"
+  end
+
+  def verified?
+    email_verified_at.present?
+  end
+
+  protected
+
+  # Override Devise's email required validation
+  def email_required?
+    false # We use email instead
+  end
+
+  # Override Devise's email changed notification
+  def email_changed?
+    email_changed?
+  end
+
+  # Override Devise's reconfirmation required check
+  def reconfirmation_required?
+    false
+  end
+
+  # Override Devise's email dirtyness check
+  def postpone_email_change?
+    false
   end
 
   private
 
-  def set_default_role
-    self.role ||= 'user'
-  end
-
   def normalize_email
-    self.email_address = email_address.strip.downcase if email_address.present?
+    self.email = email.strip.downcase if email.present?
   end
 
-  def generate_token
-    SecureRandom.hex(20)
+  def generate_verification_token
+    self.verification_token = SecureRandom.urlsafe_base64
   end
 end

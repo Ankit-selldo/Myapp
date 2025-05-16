@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #2d3436;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      background: linear-gradient(135deg, #6c5ce7 0%, #a8a4e6 100%);
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .content {
+      padding: 30px 20px;
+      background: #ffffff;
+    }
+    .benefits {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .benefits ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    .benefits li {
+      margin: 10px 0;
+      padding-left: 25px;
+      position: relative;
+    }
+    .benefits li:before {
+      content: "✓";
+      color: #6c5ce7;
+      position: absolute;
+      left: 0;
+    }
+    .cta-button {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: #6c5ce7;
+      color: white;
+      text-decoration: none;
+      border-radius: 25px;
+      margin: 20px 0;
+    }
+    .footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      color: #636e72;
+    }
+    .social-links {
+      margin: 20px 0;
+    }
+    .social-links a {
+      color: #6c5ce7;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Welcome to Our Fashion Community!</h1>
+      <p>Thank you for joining our style-savvy family</p>
+    </div>
+
+    <div class="content">
+      <p>Dear Fashion Enthusiast,</p>
+
+      <p>We're thrilled to welcome you to our exclusive fashion community! Thank you for subscribing to our newsletter. Get ready to embark on a journey through the latest trends, sustainable fashion insights, and exclusive style tips.</p>
+
+      <div class="benefits">
+        <h3>What's in Store for You:</h3>
+        <ul>
+          <li>Early access to new collections and exclusive drops</li>
+          <li>Special subscriber-only discounts</li>
+          <li>Sustainable fashion guides and tips</li>
+          <li>Behind-the-scenes content and designer interviews</li>
+          <li>Style inspiration and lookbooks</li>
+          <li>Exclusive event invitations</li>
+        </ul>
+      </div>
+
+      <p>As a welcome gift, enjoy <strong>15% off</strong> your first purchase with code: <strong>WELCOME15</strong></p>
+
+      <%= link_to "Start Shopping Now", root_url, class: "cta-button" %>
+
+      <p>Stay tuned for our next email featuring our latest collection and style tips curated just for you!</p>
+
+      <p>Best regards,<br>Your Fashion Team</p>
+    </div>
+
+    <div class="footer">
+      <div class="social-links">
+        Follow us on:
+        <%= link_to "Instagram", "https://instagram.com/yourfashionstore" %> |
+        <%= link_to "Facebook", "https://facebook.com/yourfashionstore" %> |
+        <%= link_to "Pinterest", "https://pinterest.com/yourfashionstore" %>
+      </div>
+
+      <p>
+        You received this email because you signed up for our newsletter.
+        <%= link_to "Unsubscribe", @unsubscribe_url %> if you prefer not to receive these emails.
+      </p>
+      
+      <p>© <%= Time.current.year %> Your Fashion Store. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html> 

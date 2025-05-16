@@ -1,0 +1,116 @@
+<% if product.errors.any? %>
+  <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <i class="fas fa-exclamation-circle text-red-400"></i>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-red-800">
+          <%= pluralize(product.errors.count, "error") %> prohibited this product from being saved:
+        </h3>
+        <div class="mt-2 text-sm text-red-700">
+          <ul class="list-disc pl-5 space-y-1">
+            <% product.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+  <%# Name %>
+  <div class="sm:col-span-4">
+    <%= form.label :name, class: "block text-sm font-medium text-gray-700" %>
+    <div class="mt-1">
+      <%= form.text_field :name, class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+    </div>
+  </div>
+
+  <%# Price %>
+  <div class="sm:col-span-2">
+    <%= form.label :price, class: "block text-sm font-medium text-gray-700" %>
+    <div class="mt-1 relative rounded-md shadow-sm">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <span class="text-gray-500 sm:text-sm">₹</span>
+      </div>
+      <%= form.number_field :price, step: :any, class: "focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md" %>
+    </div>
+  </div>
+
+  <%# Category %>
+  <div class="sm:col-span-3">
+    <%= form.label :category, class: "block text-sm font-medium text-gray-700" %>
+    <div class="mt-1">
+      <%= form.select :category, 
+          options_for_select([
+            ['Select a category', ''],
+            ['Hoodies', 'hoodies'],
+            ['Jeans', 'jeans'],
+            ['Shirts', 'shirts'],
+            ['T-Shirts', 'tshirts'],
+            ['Jackets', 'jackets'],
+            ['Caps', 'caps'],
+            ['Shorts', 'shorts'],
+            ['Sweaters', 'sweaters']
+          ], product.category), 
+          {}, 
+          class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+    </div>
+  </div>
+
+  <%# Inventory Count %>
+  <div class="sm:col-span-3">
+    <%= form.label :inventory_count, class: "block text-sm font-medium text-gray-700" %>
+    <div class="mt-1">
+      <%= form.number_field :inventory_count, min: 0, class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+    </div>
+  </div>
+
+  <%# Description %>
+  <div class="sm:col-span-6">
+    <%= form.label :description, class: "block text-sm font-medium text-gray-700" %>
+    <div class="mt-1">
+      <%= form.rich_text_area :description, class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+    </div>
+    <p class="mt-2 text-sm text-gray-500">Write a detailed description of the product.</p>
+  </div>
+
+  <%# Featured %>
+  <div class="sm:col-span-6">
+    <div class="flex items-start">
+      <div class="flex items-center h-5">
+        <%= form.check_box :featured, class: "focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" %>
+      </div>
+      <div class="ml-3 text-sm">
+        <%= form.label :featured, class: "font-medium text-gray-700" %>
+        <p class="text-gray-500">Featured products appear on the homepage.</p>
+      </div>
+    </div>
+  </div>
+
+  <%# Image Upload %>
+  <div class="sm:col-span-6">
+    <%= form.label :image, class: "block text-sm font-medium text-gray-700" %>
+    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+      <div class="space-y-1 text-center">
+        <i class="fas fa-cloud-upload-alt text-gray-400 text-3xl"></i>
+        <div class="flex text-sm text-gray-600">
+          <label for="product_image" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+            <span>Upload a file</span>
+            <%= form.file_field :image, class: "sr-only", accept: "image/*" %>
+          </label>
+          <p class="pl-1">or drag and drop</p>
+        </div>
+        <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%# Submit Button %>
+<div class="flex justify-end">
+  <%= form.submit class: "ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+</div> 

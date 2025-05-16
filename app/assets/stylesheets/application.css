@@ -29,10 +29,13 @@
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
   line-height: 1.6;
   color: var(--text-color);
   background-color: var(--background-color);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
 .container {
@@ -402,4 +405,23 @@ textarea:focus {
 
 .image-actions .button:hover {
   background-color: var(--danger-hover);
+}
+
+/* Crazy animated gradient background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: -1;
+  background: linear-gradient(270deg, #ff00cc, #3333ff, #00ffcc, #ffcc00, #ff0066, #00ff99, #ff00cc);
+  background-size: 1400% 1400%;
+  animation: crazyGradient 18s ease infinite;
+}
+
+@keyframes crazyGradient {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 100% 50%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
+  100% { background-position: 0% 50%; }
 }

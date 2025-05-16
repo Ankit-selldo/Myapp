@@ -1,40 +1,154 @@
-<h1>Blog Posts</h1>
-
-<% if authenticated? && (Current.user.admin? || Current.user.editor?) %>
-  <div class="actions">
-    <%= link_to "New Blog Post", new_blog_path, class: "button" %>
+<!-- Hero Section -->
+<section class="blog-hero">
+  <div class="hero-content">
+    <h1>Our Blog</h1>
+    <p class="subtitle">Discover the latest in style, sustainability, and more</p>
+    <div class="search-container">
+      <%= form_tag blogs_path, method: :get, class: "search-form" do %>
+        <%= text_field_tag :search, params[:search], placeholder: "Search articles...", class: "search-input" %>
+        <button type="submit" class="search-button">
+          <i class="fas fa-search"></i>
+        </button>
+      <% end %>
+    </div>
   </div>
+</section>
+
+<!-- Sticky Category Navigation -->
+<nav class="category-nav" data-controller="sticky-nav">
+  <div class="category-container">
+    <ul class="categories">
+      <li><%= link_to "All", blogs_path, class: params[:category].nil? ? 'active' : '' %></li>
+      <% BlogPost::CATEGORIES.each do |category| %>
+        <li>
+          <%= link_to category, blogs_path(category: category), 
+              class: params[:category] == category ? 'active' : '' %>
+        </li>
+      <% end %>
+    </ul>
+    <div class="category-dropdown">
+      <button class="dropdown-toggle">
+        More Categories
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      <ul class="dropdown-menu">
+        <% BlogPost::ADDITIONAL_CATEGORIES.each do |category| %>
+          <li>
+            <%= link_to category, blogs_path(category: category),
+                class: params[:category] == category ? 'active' : '' %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Featured Posts Section -->
+<% if @featured_posts.present? %>
+  <section class="featured-posts">
+    <h2>Featured Stories</h2>
+    <div class="featured-grid">
+      <% @featured_posts.each do |post| %>
+        <article class="featured-post" data-controller="hover-effect">
+          <% if post.featured_image.attached? %>
+            <div class="featured-image">
+              <%= image_tag post.featured_image.variant(resize_to_fill: [400, 300]) %>
+            </div>
+          <% end %>
+          <div class="post-content">
+            <div class="category-tag"><%= post.category %></div>
+            <h3><%= link_to post.title, blog_path(post) %></h3>
+            <div class="post-meta">
+              <div class="author">
+                <%= image_tag post.author.avatar.variant(resize_to_fill: [30, 30]), class: "author-avatar" if post.author.avatar.attached? %>
+                <span>By <%= post.author.name %></span>
+              </div>
+              <div class="meta-details">
+                <span class="reading-time"><%= post.reading_time %> min read</span>
+                <span class="date"><%= time_tag post.created_at, format: :short %></span>
+              </div>
+            </div>
+          </div>
+        </article>
+      <% end %>
+    </div>
+  </section>
 <% end %>
 
-<div class="blog-posts">
-  <% @blog_posts.each do |post| %>
-    <article class="blog-post">
-      <% if post.featured_image.attached? %>
-        <div class="featured-image">
-          <%= image_tag post.featured_image %>
-        </div>
-      <% end %>
-      
-      <div class="post-content">
-        <h2><%= link_to post.title, blog_path(post) %></h2>
+<!-- Main Blog Grid -->
+<section class="blog-grid">
+  <div class="grid-container">
+    <% @blog_posts.each do |post| %>
+      <article class="blog-post" data-controller="hover-effect">
+        <% if post.featured_image.attached? %>
+          <div class="post-image">
+            <%= image_tag post.featured_image.variant(resize_to_fill: [350, 200]) %>
+          </div>
+        <% end %>
         
-        <div class="post-meta">
-          <span class="author">By <%= post.author.name %></span>
-          <span class="date"><%= time_tag post.created_at, format: :long %></span>
+        <div class="post-content">
+          <div class="category-tag"><%= post.category %></div>
+          <h2><%= link_to post.title, blog_path(post) %></h2>
+          
+          <div class="post-meta">
+            <div class="author">
+              <%= image_tag post.author.avatar.variant(resize_to_fill: [25, 25]), class: "author-avatar" if post.author.avatar.attached? %>
+              <span>By <%= post.author.name %></span>
+            </div>
+            <div class="meta-details">
+              <span class="reading-time"><%= post.reading_time %> min read</span>
+              <span class="date"><%= time_tag post.created_at, format: :short %></span>
+            </div>
+          </div>
+          
+          <div class="excerpt">
+            <%= truncate(strip_tags(post.content.to_plain_text), length: 150) %>
+          </div>
+          
+          <%= link_to "Read more", blog_path(post), class: "read-more" %>
         </div>
-        
-        <div class="excerpt">
-          <%= truncate(strip_tags(post.content.to_plain_text), length: 200) %>
-        </div>
-        
-        <%= link_to "Read more", blog_path(post), class: "read-more" %>
-      </div>
-    </article>
+      </article>
+    <% end %>
+  </div>
+  
+  <% if @blog_posts.total_pages > 1 %>
+    <div class="pagination">
+      <%= paginate @blog_posts %>
+    </div>
   <% end %>
-</div>
+</section>
 
-<% if defined?(Kaminari) %>
-  <div class="pagination">
-    <%= paginate @blog_posts %>
+<!-- Newsletter Section -->
+<section class="newsletter-section">
+  <div class="newsletter-content">
+    <h3>Stay Updated</h3>
+    <p>Subscribe to our newsletter for the latest style tips and sustainable fashion insights.</p>
+    
+    <div id="newsletter-form-container">
+      <%= form_with url: newsletter_subscriptions_path, 
+                    method: :post, 
+                    class: "newsletter-form", 
+                    data: { 
+                      controller: "newsletter",
+                      action: "turbo:submit-end->newsletter#handleResponse",
+                      turbo_frame: "_top"
+                    } do |f| %>
+        <div class="input-group">
+          <%= f.email_field :email, 
+              placeholder: "Enter your email",
+              required: true,
+              class: "newsletter-input",
+              data: { newsletter_target: "email" } %>
+          <%= f.submit "Subscribe", class: "newsletter-button" %>
+        </div>
+        <div class="message" data-newsletter-target="message"></div>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<% if current_user&.admin? || current_user&.editor? %>
+  <div class="admin-actions">
+    <%= link_to "New Blog Post", new_blog_path, class: "button" %>
   </div>
 <% end %> 

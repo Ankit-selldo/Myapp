@@ -21,6 +21,7 @@ gem "sentry-rails"
 
 # Authentication & Security
 gem "bcrypt"
+gem "devise"
 gem "rack-timeout"
 
 # Storage and uploads
@@ -35,11 +36,16 @@ gem "stimulus-rails"
 # Monitoring and logging
 gem "amazing_print"
 
+# Analytics
+gem 'groupdate', '~> 6.4'  # For time-based grouping
+gem 'chartkick', '~> 5.0'  # For charts and graphs
+
 group :development, :test do
   gem "debug"
   gem "rspec-rails"
   gem "factory_bot_rails"
   gem "faker"
+  gem "dotenv-rails"
 end
 
 group :development do
@@ -57,3 +63,8 @@ group :test do
   gem "webdrivers"
   gem "simplecov"
 end
+
+gem "tailwindcss-rails", "~> 4.2"
+
+# Pagination
+gem "kaminari"

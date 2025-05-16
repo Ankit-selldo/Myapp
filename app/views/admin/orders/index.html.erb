@@ -1,0 +1,123 @@
+<%# Orders List Page %>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="sm:flex sm:items-center">
+    <div class="sm:flex-auto">
+      <h1 class="text-2xl font-semibold text-gray-900">Orders</h1>
+      <p class="mt-2 text-sm text-gray-700">A list of all orders in your store.</p>
+    </div>
+  </div>
+
+  <%# Filters %>
+  <div class="mt-4 bg-white shadow rounded-lg p-4">
+    <div class="flex flex-col sm:flex-row gap-4">
+      <%# Date Range %>
+      <div class="flex-1">
+        <%= form_tag admin_orders_path, method: :get, class: "flex gap-2" do %>
+          <div class="flex-1">
+            <%= date_field_tag :start_date, params[:start_date], 
+                class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm",
+                placeholder: "Start Date" %>
+          </div>
+          <div class="flex-1">
+            <%= date_field_tag :end_date, params[:end_date],
+                class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm",
+                placeholder: "End Date" %>
+          </div>
+          <%= submit_tag "Filter", class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700" %>
+        <% end %>
+      </div>
+
+      <%# Status Filters %>
+      <div class="flex flex-wrap gap-2">
+        <%= link_to admin_orders_path(status: 'pending'), class: "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium #{params[:status] == 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}" do %>
+          <i class="fas fa-clock text-xs mr-1"></i>
+          Pending
+        <% end %>
+
+        <%= link_to admin_orders_path(status: 'processing'), class: "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium #{params[:status] == 'processing' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}" do %>
+          <i class="fas fa-cog text-xs mr-1"></i>
+          Processing
+        <% end %>
+
+        <%= link_to admin_orders_path(status: 'shipped'), class: "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium #{params[:status] == 'shipped' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}" do %>
+          <i class="fas fa-shipping-fast text-xs mr-1"></i>
+          Shipped
+        <% end %>
+
+        <%= link_to admin_orders_path(status: 'delivered'), class: "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium #{params[:status] == 'delivered' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}" do %>
+          <i class="fas fa-check-circle text-xs mr-1"></i>
+          Delivered
+        <% end %>
+
+        <%= link_to admin_orders_path(status: 'cancelled'), class: "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium #{params[:status] == 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}" do %>
+          <i class="fas fa-times-circle text-xs mr-1"></i>
+          Cancelled
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%# Orders Table %>
+  <div class="mt-8 flex flex-col">
+    <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+        <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+          <table class="min-w-full divide-y divide-gray-300">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Order Number</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Customer</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Date</th>
+                <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Total</th>
+                <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">Status</th>
+                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                  <span class="sr-only">Actions</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 bg-white">
+              <% @orders.each do |order| %>
+                <tr>
+                  <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                    <%= link_to order.number, admin_order_path(order), class: "text-blue-600 hover:text-blue-900" %>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <%= order.user.email %>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <%= order.created_at.strftime("%B %d, %Y") %>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-right text-gray-500">
+                    ₹<%= number_with_precision(order.total_amount, precision: 2) %>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-center">
+                    <% status_class = case order.status
+                      when 'pending' then 'bg-yellow-100 text-yellow-800'
+                      when 'processing' then 'bg-blue-100 text-blue-800'
+                      when 'shipped' then 'bg-green-100 text-green-800'
+                      when 'delivered' then 'bg-green-100 text-green-800'
+                      when 'cancelled' then 'bg-red-100 text-red-800'
+                      end %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= status_class %>">
+                      <%= order.status.titleize %>
+                    </span>
+                  </td>
+                  <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                    <%= link_to "View", admin_order_path(order), class: "text-blue-600 hover:text-blue-900" %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Pagination %>
+  <% if @orders.respond_to?(:total_pages) %>
+    <div class="mt-4">
+      <%= paginate @orders, class: "pagination" %>
+    </div>
+  <% end %>
+</div> 

@@ -1,0 +1,109 @@
+<%# Discount Details %>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="md:flex md:items-center md:justify-between">
+    <div class="flex-1 min-w-0">
+      <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+        Discount: <%= @discount.code %>
+      </h2>
+    </div>
+    <div class="mt-4 flex md:mt-0 md:ml-4">
+      <%= link_to edit_admin_discount_path(@discount), class: "ml-3 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50" do %>
+        <i class="fas fa-edit -ml-1 mr-2 h-5 w-5"></i>
+        Edit
+      <% end %>
+      <%= button_to admin_discount_path(@discount), method: :delete, class: "ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700", data: { turbo_confirm: "Are you sure?" } do %>
+        <i class="fas fa-trash -ml-1 mr-2 h-5 w-5"></i>
+        Delete
+      <% end %>
+    </div>
+  </div>
+
+  <div class="mt-8 bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">Discount Information</h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">Details about the discount code and its usage.</p>
+    </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+      <dl class="sm:divide-y sm:divide-gray-200">
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Code</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @discount.code %></dd>
+        </div>
+
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Description</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @discount.description %></dd>
+        </div>
+
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Type</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @discount.discount_type.titleize %></dd>
+        </div>
+
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Amount</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <% if @discount.percentage? %>
+              <%= number_to_percentage(@discount.amount, precision: 0) %>
+            <% else %>
+              <%= number_to_currency(@discount.amount, unit: "₹") %>
+            <% end %>
+          </dd>
+        </div>
+
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Minimum Purchase</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <%= @discount.minimum_purchase ? number_to_currency(@discount.minimum_purchase, unit: "₹") : "No minimum" %>
+          </dd>
+        </div>
+
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Valid Period</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <%= @discount.starts_at.strftime("%B %d, %Y") %> - <%= @discount.expires_at.strftime("%B %d, %Y") %>
+          </dd>
+        </div>
+
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Status</dt>
+          <dd class="mt-1 text-sm sm:mt-0 sm:col-span-2">
+            <% if @discount.active? %>
+              <% if @discount.currently_valid? %>
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+              <% elsif Time.current < @discount.starts_at %>
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Upcoming</span>
+              <% else %>
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Expired</span>
+              <% end %>
+            <% else %>
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Inactive</span>
+            <% end %>
+          </dd>
+        </div>
+
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Applied Products</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <% if @discount.products.any? %>
+              <ul class="border border-gray-200 rounded-md divide-y divide-gray-200">
+                <% @discount.products.each do |product| %>
+                  <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
+                    <div class="w-0 flex-1 flex items-center">
+                      <%= link_to product.name, admin_product_path(product), class: "ml-2 flex-1 w-0 truncate hover:text-blue-600" %>
+                    </div>
+                    <div class="ml-4 flex-shrink-0">
+                      <%= number_to_currency(product.price, unit: "₹") %>
+                    </div>
+                  </li>
+                <% end %>
+              </ul>
+            <% else %>
+              <p class="text-gray-500">No products selected</p>
+            <% end %>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</div> 

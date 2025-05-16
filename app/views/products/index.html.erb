@@ -1,15 +1,108 @@
-<h1><%= t ".title" %></h1>
-
-<% if authenticated? %>
-  <%= link_to "New product", new_product_path %>
-<% else %>
-  <%= link_to "Login", new_session_path %>
-<% end %>
-
-<div id="products">
-  <% @products.each do |product| %>
-    <div>
-        <%= link_to product.name, product %>
+<%# Hero Section %>
+<div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16 mb-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center">
+      <h1 class="text-4xl font-bold mb-4">Discover Our Collection</h1>
+      <p class="text-xl text-blue-100">Find the perfect style for every occasion</p>
+      
+      <%# Search Bar %>
+      <div class="mt-8 max-w-xl mx-auto">
+        <%= form_tag products_path, method: :get, class: "flex items-center" do %>
+          <div class="relative flex-grow">
+            <%= text_field_tag :search, params[:search], 
+                class: "w-full px-4 py-3 rounded-l-lg border-0 focus:ring-2 focus:ring-blue-500 text-gray-900",
+                placeholder: "Search for products..." %>
+            <%= hidden_field_tag :category, params[:category] if params[:category].present? %>
+            <%= hidden_field_tag :sort, params[:sort] if params[:sort].present? %>
+          </div>
+          <button type="submit" class="px-6 py-3 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            <i class="fas fa-search"></i>
+          </button>
+        <% end %>
+      </div>
     </div>
-  <% end %>
+  </div>
+</div>
+
+<%# Products Index Header %>
+<div class="bg-white shadow">
+  <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+    <h1 class="text-3xl font-bold text-gray-900">Products</h1>
+    
+    <div class="flex items-center space-x-4">
+      <%= form_tag products_path, method: :get, class: "flex items-center space-x-4" do %>
+        <%= hidden_field_tag :search, params[:search] if params[:search].present? %>
+        <div class="relative">
+          <%= select_tag :category, 
+              options_for_select([
+                ['All Categories', ''],
+                ['Hoodies', 'hoodies'],
+                ['Jeans', 'jeans'],
+                ['Shirts', 'shirts'],
+                ['T-Shirts', 'tshirts'],
+                ['Jackets', 'jackets'],
+                ['Caps', 'caps'],
+                ['Shorts', 'shorts'],
+                ['Sweaters', 'sweaters']
+              ], params[:category]),
+              class: "appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-10 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+              onchange: "this.form.submit()" %>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+            <i class="fas fa-chevron-down text-sm"></i>
+          </div>
+        </div>
+
+        <div class="relative">
+          <%= select_tag :sort, 
+              options_for_select([
+                ['Latest', 'newest'],
+                ['Featured', 'featured'],
+                ['Price: Low to High', 'price_asc'],
+                ['Price: High to Low', 'price_desc']
+              ], params[:sort]),
+              class: "appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-10 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+              onchange: "this.form.submit()" %>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+            <i class="fas fa-chevron-down text-sm"></i>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <% if admin? %>
+      <%= link_to new_admin_product_path, class: "inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+        <i class="fas fa-plus mr-2"></i>
+        New Product
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<%# Products Grid %>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <% @products.each do |product| %>
+      <%= render 'product_card', product: product %>
+    <% end %>
+  </div>
+</div>
+
+<%# Newsletter Section %>
+<div class="bg-gray-50 mt-16 py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center">
+      <h2 class="text-3xl font-bold text-gray-900 mb-4">Stay Updated</h2>
+      <p class="text-lg text-gray-600 mb-8">Subscribe to our newsletter for the latest products and exclusive offers</p>
+      
+      <%= form_tag newsletter_subscriptions_path, class: "max-w-md mx-auto" do %>
+        <div class="flex gap-4">
+          <%= email_field_tag :email, nil, 
+              placeholder: "Enter your email",
+              class: "flex-1 min-w-0 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+          <%= submit_tag "Subscribe", 
+              class: "inline-flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
 </div>

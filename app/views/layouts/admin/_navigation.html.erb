@@ -1,0 +1,73 @@
+<%# Admin Navigation %>
+<nav class="bg-gray-800">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <%# Logo %>
+      <div class="flex-shrink-0">
+        <%= link_to admin_root_path, class: "flex items-center" do %>
+          <span class="text-white text-xl font-bold">Admin Panel</span>
+        <% end %>
+      </div>
+
+      <%# Navigation Items %>
+      <div class="hidden md:block">
+        <div class="ml-10 flex items-baseline space-x-4">
+          <%= link_to admin_dashboard_path, 
+              class: "#{current_page?(admin_dashboard_path) ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'} px-3 py-2 rounded-md text-sm font-medium" do %>
+            <i class="fas fa-chart-line mr-2"></i>Dashboard
+          <% end %>
+
+          <%= link_to admin_orders_path,
+              class: "#{current_page?(admin_orders_path) ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'} px-3 py-2 rounded-md text-sm font-medium" do %>
+            <i class="fas fa-shopping-cart mr-2"></i>Orders
+          <% end %>
+
+          <%= link_to admin_products_path,
+              class: "#{current_page?(admin_products_path) ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'} px-3 py-2 rounded-md text-sm font-medium" do %>
+            <i class="fas fa-box mr-2"></i>Products
+          <% end %>
+
+          <%= link_to admin_customers_path,
+              class: "#{current_page?(admin_customers_path) ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'} px-3 py-2 rounded-md text-sm font-medium" do %>
+            <i class="fas fa-users mr-2"></i>Customers
+          <% end %>
+
+          <%= link_to admin_analytics_path,
+              class: "#{current_page?(admin_analytics_path) ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'} px-3 py-2 rounded-md text-sm font-medium" do %>
+            <i class="fas fa-chart-bar mr-2"></i>Analytics
+          <% end %>
+
+          <%= link_to admin_discounts_path,
+              class: "#{current_page?(admin_discounts_path) ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'} px-3 py-2 rounded-md text-sm font-medium" do %>
+            <i class="fas fa-tag mr-2"></i>Discounts
+          <% end %>
+
+          <%= link_to admin_settings_path,
+              class: "#{current_page?(admin_settings_path) ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'} px-3 py-2 rounded-md text-sm font-medium" do %>
+            <i class="fas fa-cog mr-2"></i>Settings
+          <% end %>
+        </div>
+      </div>
+
+      <%# User Menu %>
+      <div class="hidden md:block">
+        <div class="ml-4 flex items-center md:ml-6">
+          <div class="relative">
+            <button type="button" class="text-gray-300 hover:text-white focus:outline-none">
+              <span class="sr-only">View notifications</span>
+              <i class="fas fa-bell"></i>
+            </button>
+          </div>
+          <div class="ml-3 relative">
+            <div>
+              <button type="button" class="max-w-xs bg-gray-800 rounded-full flex items-center text-sm focus:outline-none" id="user-menu-button">
+                <span class="sr-only">Open user menu</span>
+                <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" alt="">
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav> 

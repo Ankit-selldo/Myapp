@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#007bff">
-    <meta name="description" content="<%= ENV.fetch('APP_DESCRIPTION', 'A modern web application') %>">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="description" content="<%= ENV.fetch('APP_DESCRIPTION', 'A modern shopping experience') %>">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
@@ -19,10 +19,16 @@
     <link rel="icon" href="/icons/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-    <link rel="mask-icon" href="/icons/mask-icon.svg" color="#007bff">
+    <link rel="mask-icon" href="/icons/mask-icon.svg" color="#2563eb">
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+
+    <%# Add Tailwind CSS %>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <%# Add Font Awesome %>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <%# Register service worker %>
     <script>
@@ -40,35 +46,125 @@
     </script>
   </head>
 
-  <body>
-    <div class="container">
-      <% if notice %>
-        <div class="notice"><%= notice %></div>
-      <% end %>
-      <% if alert %>
-        <div class="alert"><%= alert %></div>
-      <% end %>
-
-      <nav>
-        <%= link_to "Home", root_path %>
-        <%= link_to "Blog", blog_index_path %>
-        <% if authenticated? %>
-          <div class="user-menu">
-            <span class="user-name"><%= Current.user.name %></span>
-            <%= button_to "Log out", session_path, method: :delete, class: "button" %>
+  <body class="bg-gray-50 min-h-screen flex flex-col">
+    <header class="bg-white shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+          <div class="flex items-center">
+            <%= link_to root_path, class: "text-2xl font-bold text-blue-600" do %>
+              <%= ENV.fetch('APP_NAME', 'My Shop') %>
+            <% end %>
           </div>
-        <% else %>
-          <%= link_to "Log in", new_session_path, class: "button" %>
+
+          <nav class="hidden md:flex items-center space-x-8">
+            <%= link_to "Home", root_path, class: "text-gray-600 hover:text-blue-600 transition-colors", data: { "turbo-method": :get } %>
+            <%= link_to "Products", products_path, class: "text-gray-600 hover:text-blue-600 transition-colors", data: { "turbo-method": :get } %>
+            <%= link_to "Blog", blog_posts_path, class: "text-gray-600 hover:text-blue-600 transition-colors", data: { "turbo-method": :get } %>
+          </nav>
+
+          <div class="flex items-center space-x-4">
+            <%= link_to cart_path, class: "relative text-gray-600 hover:text-blue-600 transition-colors", data: { "turbo-method": :get } do %>
+              <i class="fas fa-shopping-cart text-xl"></i>
+              <% if authenticated? && current_user.cart&.total_items.to_i > 0 %>
+                <span class="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <%= current_user.cart.total_items %>
+                </span>
+              <% end %>
+            <% end %>
+            
+            <% if authenticated? && current_user %>
+              <div class="relative group">
+                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md p-2">
+                  <span class="hidden md:inline"><%= current_user.name %></span>
+                  <i class="fas fa-user-circle text-xl"></i>
+                </button>
+                <div class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl py-2 hidden group-hover:block z-50 border border-gray-100">
+                  <div class="px-4 py-2 border-b border-gray-100">
+                    <p class="text-sm font-medium text-gray-900"><%= current_user.name %></p>
+                    <p class="text-xs text-gray-500 truncate"><%= current_user.email %></p>
+                  </div>
+                  <% if current_user.admin? %>
+                    <%= link_to admin_dashboard_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors" do %>
+                      <i class="fas fa-shield-alt mr-3 w-5 text-gray-400"></i>
+                      Admin Panel
+                    <% end %>
+                  <% end %>
+                  <%= link_to profile_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors" do %>
+                    <i class="fas fa-user mr-3 w-5 text-gray-400"></i>
+                    Profile
+                  <% end %>
+                  <%= link_to orders_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors", data: { "turbo-method": :get } do %>
+                    <i class="fas fa-shopping-bag mr-3 w-5 text-gray-400"></i>
+                    Orders
+                  <% end %>
+                  <%= link_to settings_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors", data: { "turbo-method": :get } do %>
+                    <i class="fas fa-cog mr-3 w-5 text-gray-400"></i>
+                    Settings
+                  <% end %>
+                  <div class="border-t border-gray-100 my-1"></div>
+                  <%= button_to logout_path, method: :delete, class: "w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors" do %>
+                    <i class="fas fa-sign-out-alt mr-3 w-5 text-red-400"></i>
+                    Log out
+                  <% end %>
+                </div>
+              </div>
+            <% else %>
+              <%= link_to "Log in", login_path, class: "text-gray-600 hover:text-blue-600 transition-colors", data: { "turbo-method": :get } %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-grow">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <% if notice %>
+          <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-md"><%= notice %></div>
         <% end %>
-      </nav>
+        <% if alert %>
+          <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-md"><%= alert %></div>
+        <% end %>
 
-      <main>
         <%= yield %>
-      </main>
+      </div>
+    </main>
 
-      <footer>
-        <p>&copy; <%= Time.current.year %> <%= ENV.fetch('APP_NAME', 'My App') %>. All rights reserved.</p>
-      </footer>
-    </div>
+    <footer class="bg-white border-t">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">About Us</h3>
+            <p class="text-gray-600">Your one-stop shop for all your fashion needs.</p>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Links</h3>
+            <ul class="space-y-2">
+              <li><%= link_to "Products", products_path, class: "text-gray-600 hover:text-blue-600" %></li>
+              <li><%= link_to "Blog", blog_posts_path, class: "text-gray-600 hover:text-blue-600" %></li>
+              <li><%= link_to "Contact", "#", class: "text-gray-600 hover:text-blue-600" %></li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Customer Service</h3>
+            <ul class="space-y-2">
+              <li><%= link_to "Shipping Policy", "#", class: "text-gray-600 hover:text-blue-600" %></li>
+              <li><%= link_to "Returns & Exchanges", "#", class: "text-gray-600 hover:text-blue-600" %></li>
+              <li><%= link_to "FAQ", "#", class: "text-gray-600 hover:text-blue-600" %></li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Connect With Us</h3>
+            <div class="flex space-x-4">
+              <a href="#" class="text-gray-600 hover:text-blue-600"><i class="fab fa-facebook text-xl"></i></a>
+              <a href="#" class="text-gray-600 hover:text-blue-600"><i class="fab fa-twitter text-xl"></i></a>
+              <a href="#" class="text-gray-600 hover:text-blue-600"><i class="fab fa-instagram text-xl"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="mt-8 pt-8 border-t text-center text-gray-600">
+          <p>&copy; <%= Time.current.year %> <%= ENV.fetch('APP_NAME', 'My Shop') %>. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>
