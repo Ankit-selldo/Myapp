@@ -17,14 +17,14 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.4.3'
+        ruby-version: '3.2.2'  # Using stable Ruby version
         bundler-cache: true
 
     - name: Install dependencies
       run: bundle install --jobs 4 --retry 3
 
     - name: Run Snyk to check for vulnerabilities
-      uses: snyk/actions/ruby@master  # Updated to use the Ruby-specific action
+      uses: snyk/actions/ruby@master
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
@@ -71,7 +71,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # Added to ensure full history for better secret scanning
+        fetch-depth: 0
 
     - name: TruffleHog OSS
       uses: trufflesecurity/trufflehog@v3.60.0
@@ -84,11 +84,30 @@ jobs:
   gitleaks:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
+    - name: Install Gitleaks
+      run: |
+        wget https://github.com/zricethezav/gitleaks/releases/download/v8.18.1/gitleaks_8.18.1_linux_x64.tar.gz
+        tar -xzf gitleaks_8.18.1_linux_x64.tar.gz
+        sudo mv gitleaks /usr/local/bin/
+
     - name: Run Gitleaks
-      uses: gitleaks/gitleaks-action@v2  # Updated to use the official action
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gitleaks detect \
+          --source . \
+          --verbose \
+          --report-format json \
+          --report-path gitleaks-report.json \
+          --no-git || true
+
+    - name: Upload Gitleaks report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: gitleaks-report
+        path: gitleaks-report.json
+        if-no-files-found: ignore

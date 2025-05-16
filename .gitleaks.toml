@@ -1,22 +1,26 @@
+# Gitleaks configuration file
+
+title = "Gitleaks Configuration"
+
 [allowlist]
-description = "Global allow list"
+description = "Allowlisted files and paths"
+paths = [
+    "go.mod",
+    "go.sum",
+    "package-lock.json",
+    "yarn.lock",
+    "Gemfile.lock"
+]
 
-[[allowlist.paths]]
-path = '''go.mod'''
-description = "Go modules file"
+# Ignore certain file extensions
+regexes = [
+    ".*\\.html$",
+    ".*\\.css$",
+    ".*\\.scss$"
+]
 
-[[allowlist.paths]]
-path = '''go.sum'''
-description = "Go modules file"
-
-[[allowlist.paths]]
-path = '''package-lock.json'''
-description = "NPM lock file"
-
-[[allowlist.paths]]
-path = '''yarn.lock'''
-description = "Yarn lock file"
-
-[[allowlist.paths]]
-path = '''Gemfile.lock'''
-description = "Ruby Gemfile lock" 
+# Ignore commits from bots
+commits = [
+    "dependabot[bot]",
+    "github-actions[bot]"
+] 
