@@ -1,11 +1,11 @@
 namespace :admin do
   desc 'Create or update admin user'
   task create: :environment do
-    admin_email = 'admin@example.com'
-    admin_password = 'admin123'  # You can change this password
+    admin_email = 'ankit.godara@sell.do'
+    admin_password = '123456'  # You can change this password
 
     # First, ensure any existing admin is found
-    admin = User.find_by(email_address: admin_email)
+    admin = User.find_by(email: admin_email)
     
     if admin
       # Update existing admin
@@ -13,18 +13,18 @@ namespace :admin do
         password: admin_password,
         password_confirmation: admin_password,
         role: :admin,
-        name: 'Admin',
-        email_address: admin_email
+        name: 'Ankit Godara',
+        email: admin_email
       )
       puts "Admin user updated with new password"
     else
       # Create new admin
       admin = User.new(
-        email_address: admin_email,
+        email: admin_email,
         password: admin_password,
         password_confirmation: admin_password,
         role: :admin,
-        name: 'Admin'
+        name: 'Ankit Godara'
       )
       
       if admin.save

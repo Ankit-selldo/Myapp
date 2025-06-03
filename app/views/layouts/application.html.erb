@@ -30,6 +30,8 @@
     <%# Add Font Awesome %>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
+    <%= yield :scripts %>
+
     <%# Register service worker %>
     <script>
       if ('serviceWorker' in navigator) {
@@ -57,22 +59,22 @@
           </div>
 
           <nav class="hidden md:flex items-center space-x-8">
-            <%= link_to "Home", root_path, class: "text-gray-600 hover:text-blue-600 transition-colors", data: { "turbo-method": :get } %>
-            <%= link_to "Products", products_path, class: "text-gray-600 hover:text-blue-600 transition-colors", data: { "turbo-method": :get } %>
-            <%= link_to "Blog", blog_posts_path, class: "text-gray-600 hover:text-blue-600 transition-colors", data: { "turbo-method": :get } %>
+            <%= link_to "Home", root_path, class: "text-gray-600 hover:text-blue-600 transition-colors" %>
+            <%= link_to "Products", products_path, class: "text-gray-600 hover:text-blue-600 transition-colors" %>
+            <%= link_to "Blog", blog_posts_path, class: "text-gray-600 hover:text-blue-600 transition-colors" %>
           </nav>
 
           <div class="flex items-center space-x-4">
-            <%= link_to cart_path, class: "relative text-gray-600 hover:text-blue-600 transition-colors", data: { "turbo-method": :get } do %>
+            <%= link_to cart_path, class: "relative text-gray-600 hover:text-blue-600 transition-colors" do %>
               <i class="fas fa-shopping-cart text-xl"></i>
-              <% if authenticated? && current_user.cart&.total_items.to_i > 0 %>
+              <% if @cart&.total_items.to_i > 0 %>
                 <span class="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  <%= current_user.cart.total_items %>
+                  <%= @cart.total_items %>
                 </span>
               <% end %>
             <% end %>
             
-            <% if authenticated? && current_user %>
+            <% if user_signed_in? %>
               <div class="relative group">
                 <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md p-2">
                   <span class="hidden md:inline"><%= current_user.name %></span>
@@ -93,23 +95,23 @@
                     <i class="fas fa-user mr-3 w-5 text-gray-400"></i>
                     Profile
                   <% end %>
-                  <%= link_to orders_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors", data: { "turbo-method": :get } do %>
+                  <%= link_to orders_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors" do %>
                     <i class="fas fa-shopping-bag mr-3 w-5 text-gray-400"></i>
                     Orders
                   <% end %>
-                  <%= link_to settings_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors", data: { "turbo-method": :get } do %>
+                  <%= link_to settings_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors" do %>
                     <i class="fas fa-cog mr-3 w-5 text-gray-400"></i>
                     Settings
                   <% end %>
                   <div class="border-t border-gray-100 my-1"></div>
-                  <%= button_to logout_path, method: :delete, class: "w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors" do %>
+                  <%= button_to destroy_user_session_path, method: :delete, data: { turbo_method: :delete, turbo_confirm: 'Are you sure you want to log out?', turbo: false }, class: "w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors" do %>
                     <i class="fas fa-sign-out-alt mr-3 w-5 text-red-400"></i>
                     Log out
                   <% end %>
                 </div>
               </div>
             <% else %>
-              <%= link_to "Log in", login_path, class: "text-gray-600 hover:text-blue-600 transition-colors", data: { "turbo-method": :get } %>
+              <%= link_to "Sign in", new_user_session_path, class: "text-gray-600 hover:text-blue-600 transition-colors" %>
             <% end %>
           </div>
         </div>
@@ -141,23 +143,23 @@
             <ul class="space-y-2">
               <li><%= link_to "Products", products_path, class: "text-gray-600 hover:text-blue-600" %></li>
               <li><%= link_to "Blog", blog_posts_path, class: "text-gray-600 hover:text-blue-600" %></li>
-              <li><%= link_to "Contact", "#", class: "text-gray-600 hover:text-blue-600" %></li>
+              <li><%= link_to "Contact", contact_path, class: "text-gray-600 hover:text-blue-600" %></li>
             </ul>
           </div>
           <div>
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Customer Service</h3>
             <ul class="space-y-2">
-              <li><%= link_to "Shipping Policy", "#", class: "text-gray-600 hover:text-blue-600" %></li>
-              <li><%= link_to "Returns & Exchanges", "#", class: "text-gray-600 hover:text-blue-600" %></li>
-              <li><%= link_to "FAQ", "#", class: "text-gray-600 hover:text-blue-600" %></li>
+              <li><%= link_to "Shipping Policy", shipping_policy_path, class: "text-gray-600 hover:text-blue-600" %></li>
+              <li><%= link_to "Returns & Exchanges", returns_path, class: "text-gray-600 hover:text-blue-600" %></li>
+              <li><%= link_to "FAQ", faq_path, class: "text-gray-600 hover:text-blue-600" %></li>
             </ul>
           </div>
           <div>
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Connect With Us</h3>
             <div class="flex space-x-4">
-              <a href="#" class="text-gray-600 hover:text-blue-600"><i class="fab fa-facebook text-xl"></i></a>
-              <a href="#" class="text-gray-600 hover:text-blue-600"><i class="fab fa-twitter text-xl"></i></a>
-              <a href="#" class="text-gray-600 hover:text-blue-600"><i class="fab fa-instagram text-xl"></i></a>
+              <a href="https://facebook.com" target="_blank" class="text-gray-600 hover:text-blue-600"><i class="fab fa-facebook text-xl"></i></a>
+              <a href="https://twitter.com" target="_blank" class="text-gray-600 hover:text-blue-600"><i class="fab fa-twitter text-xl"></i></a>
+              <a href="https://instagram.com" target="_blank" class="text-gray-600 hover:text-blue-600"><i class="fab fa-instagram text-xl"></i></a>
             </div>
           </div>
         </div>

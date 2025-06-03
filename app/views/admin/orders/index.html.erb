@@ -1,9 +1,9 @@
-<%# Orders List Page %>
+<%# Admin Orders List Page %>
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   <div class="sm:flex sm:items-center">
     <div class="sm:flex-auto">
       <h1 class="text-2xl font-semibold text-gray-900">Orders</h1>
-      <p class="mt-2 text-sm text-gray-700">A list of all orders in your store.</p>
+      <p class="mt-2 text-sm text-gray-700">A list of all orders in the system.</p>
     </div>
   </div>
 
@@ -62,14 +62,16 @@
     <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
       <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
         <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+          <% if @orders.any? %>
           <table class="min-w-full divide-y divide-gray-300">
             <thead class="bg-gray-50">
               <tr>
-                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Order Number</th>
+                  <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Order #</th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Customer</th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Date</th>
+                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Payment</th>
                 <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Total</th>
-                <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">Status</th>
                 <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                   <span class="sr-only">Actions</span>
                 </th>
@@ -79,7 +81,7 @@
               <% @orders.each do |order| %>
                 <tr>
                   <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                    <%= link_to order.number, admin_order_path(order), class: "text-blue-600 hover:text-blue-900" %>
+                      <%= order.id %>
                   </td>
                   <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     <%= order.user.email %>
@@ -87,21 +89,39 @@
                   <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     <%= order.created_at.strftime("%B %d, %Y") %>
                   </td>
-                  <td class="whitespace-nowrap px-3 py-4 text-sm text-right text-gray-500">
-                    ₹<%= number_with_precision(order.total_amount, precision: 2) %>
-                  </td>
-                  <td class="whitespace-nowrap px-3 py-4 text-sm text-center">
-                    <% status_class = case order.status
-                      when 'pending' then 'bg-yellow-100 text-yellow-800'
-                      when 'processing' then 'bg-blue-100 text-blue-800'
-                      when 'shipped' then 'bg-green-100 text-green-800'
-                      when 'delivered' then 'bg-green-100 text-green-800'
-                      when 'cancelled' then 'bg-red-100 text-red-800'
-                      end %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= status_class %>">
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        <%= case order.status
+                            when 'processing'
+                              'bg-blue-100 text-blue-800'
+                            when 'completed'
+                              'bg-green-100 text-green-800'
+                            when 'cancelled'
+                              'bg-red-100 text-red-800'
+                            else
+                              'bg-gray-100 text-gray-800'
+                            end %>">
                       <%= order.status.titleize %>
                     </span>
                   </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        <%= case order.payment_status
+                            when 'paid'
+                              'bg-green-100 text-green-800'
+                            when 'pending_payment'
+                              'bg-yellow-100 text-yellow-800'
+                            when 'failed'
+                              'bg-red-100 text-red-800'
+                            else
+                              'bg-gray-100 text-gray-800'
+                            end %>">
+                        <%= order.payment_status.titleize %>
+                      </span>
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right">
+                      <%= number_to_currency(order.total_amount, unit: "₹") %>
+                    </td>
                   <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                     <%= link_to "View", admin_order_path(order), class: "text-blue-600 hover:text-blue-900" %>
                   </td>
@@ -109,6 +129,13 @@
               <% end %>
             </tbody>
           </table>
+          <% else %>
+            <div class="text-center py-12">
+              <i class="fas fa-shopping-cart text-gray-400 text-5xl mb-4"></i>
+              <h3 class="text-lg font-medium text-gray-900">No orders yet</h3>
+              <p class="mt-1 text-sm text-gray-500">Orders will appear here when customers make purchases.</p>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>

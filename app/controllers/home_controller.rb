@@ -1,22 +1,19 @@
 class HomeController < ApplicationController
-  skip_before_action :authenticate, only: [:index]
+  include Devise::Controllers::Helpers
+  
+  # Removed temporary authenticate_user! placeholder
+  # def authenticate_user!
+  #   # This is a placeholder to make skip_before_action happy.
+  #   # The actual authentication is handled by Devise where needed.
+  #   # super unless devise_controller? # We don't want to call the parent authenticate_user! here
+  # end
+  
+  # Reverted to using skip_before_action :authenticate_user!
+  skip_before_action :authenticate_user!, only: [:index]
 
   def index
-    @featured_products = Product.where(featured: true).limit(4)
-    @latest_products = Product.order(created_at: :desc).limit(8)
-    
-    # If no featured products, show latest products instead
-    if @featured_products.empty?
-      @featured_products = @latest_products.first(4)
-    end
-    
-    @blog_posts = BlogPost.published
-                         .order(Arel.sql('COALESCE(published_at, created_at) DESC'))
-                         .limit(3)
-  rescue StandardError => e
-    flash.now[:alert] = "Error loading home page content: #{e.message}"
-    @featured_products = []
-    @latest_products = []
-    @blog_posts = []
+    @featured_products = Product.featured.limit(8)
+    @latest_products = Product.latest.limit(8)
+    @blog_posts = BlogPost.published.recent.limit(3)
   end
 end 

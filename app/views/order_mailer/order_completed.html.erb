@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .order-details {
+        background: #f9fafb;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #3b82f6;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #e5e7eb;
+        color: #6b7280;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Your Order Has Been Completed!</h1>
+      </div>
+
+      <p>Dear <%= @order.shipping_name %>,</p>
+
+      <p>Great news! Your order #<%= @order.id %> has been completed and is ready for delivery.</p>
+
+      <div class="order-details">
+        <h2>Order Details:</h2>
+        <p><strong>Order Number:</strong> #<%= @order.id %></p>
+        <p><strong>Order Date:</strong> <%= @order.created_at.strftime("%B %d, %Y") %></p>
+        <p><strong>Payment Method:</strong> <%= @order.payment_method.titleize %></p>
+        <p><strong>Total Amount:</strong> ₹<%= number_with_precision(@order.total_amount, precision: 2) %></p>
+      </div>
+
+      <div class="shipping-info">
+        <h2>Shipping Address:</h2>
+        <p>
+          <%= @order.shipping_name %><br>
+          <%= @order.shipping_address %><br>
+          <%= @order.shipping_city %>, <%= @order.shipping_state %> <%= @order.shipping_postal_code %><br>
+          <%= @order.shipping_country %>
+        </p>
+      </div>
+
+      <p>
+        <%= link_to "View Order Details", order_url(@order), class: "button" %>
+      </p>
+
+      <p>Thank you for shopping with us!</p>
+
+      <div class="footer">
+        <p>If you have any questions, please don't hesitate to contact us.</p>
+      </div>
+    </div>
+  </body>
+</html> 

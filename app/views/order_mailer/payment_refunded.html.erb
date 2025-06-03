@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { text-align: center; margin-bottom: 30px; }
+      .content { background: #f9f9f9; padding: 20px; border-radius: 5px; }
+      .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #666; }
+      .refund-info { background: #fff3e0; padding: 15px; border-radius: 5px; margin: 20px 0; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Payment Refunded</h1>
+      </div>
+      
+      <div class="content">
+        <p>Dear <%= @order.shipping_name %>,</p>
+        
+        <div class="refund-info">
+          <p>We've processed a refund for your order #<%= @order.id %>.</p>
+          <p><strong>Refund Amount:</strong> <%= number_to_currency(@order.total_amount, unit: "₹") %></p>
+          <p><strong>Original Payment Method:</strong> <%= @order.payment_method&.titleize %></p>
+          <p>The refund should appear in your account within 5-7 business days, depending on your bank's processing time.</p>
+        </div>
+        
+        <p>Order Details:</p>
+        <ul>
+          <li>Order Number: #<%= @order.id %></li>
+          <li>Order Date: <%= @order.created_at.strftime("%B %d, %Y") %></li>
+          <li>Refund Date: <%= Time.current.strftime("%B %d, %Y") %></li>
+        </ul>
+
+        <p>If you have any questions about your refund, please don't hesitate to contact our customer service team.</p>
+      </div>
+      
+      <div class="footer">
+        <p>Thank you for your understanding. We hope to serve you again in the future.</p>
+      </div>
+    </div>
+  </body>
+</html> 

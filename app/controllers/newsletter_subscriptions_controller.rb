@@ -1,6 +1,6 @@
-class NewsletterSubscriptionsController < ApplicationController
-  allow_unauthenticated_access
+# allow_unauthenticated_access # Removed because authenticate is not a global callback anymore
 
+class NewsletterSubscriptionsController < ApplicationController
   def create
     @subscriber = NewsletterSubscriber.new(email: params[:email])
 

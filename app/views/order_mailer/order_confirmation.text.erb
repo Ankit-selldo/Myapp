@@ -1,0 +1,35 @@
+Order Confirmation
+=================
+
+Thank you for your order!
+
+Order Details
+------------
+Order Number: <%= @order.number %>
+Order Date: <%= @order.created_at.strftime("%B %d, %Y") %>
+
+Shipping Details
+--------------
+<%= @order.shipping_name %>
+<%= @order.shipping_address %>
+<%= "#{@order.shipping_city}, #{@order.shipping_state} #{@order.shipping_postal_code}" %>
+<%= @order.shipping_country %>
+Phone: <%= @order.phone %>
+Email: <%= @order.email %>
+
+Order Items
+----------
+<% @order.order_items.each do |item| %>
+* <%= item.product.name %> (<%= "#{item.product_variant.color} / #{item.product_variant.size}" %>)
+  Quantity: <%= item.quantity %>
+  Price: ₹<%= number_with_precision(item.price, precision: 2) %>
+  Total: ₹<%= number_with_precision(item.total_price, precision: 2) %>
+<% end %>
+
+Order Summary
+------------
+Subtotal: ₹<%= number_with_precision(@order.total_amount, precision: 2) %>
+Shipping: Free
+Total: ₹<%= number_with_precision(@order.total_amount, precision: 2) %>
+
+Thank you for shopping with us! If you have any questions about your order, please contact our customer service. 

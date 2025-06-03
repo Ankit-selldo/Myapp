@@ -81,7 +81,6 @@ class Product < ApplicationRecord
   after_create_commit :process_image
   after_update_commit :process_image, if: :will_process_image?
   after_update :notify_subscribers, if: :saved_change_to_inventory_count?
-  after_save :update_inventory_count
 
   def formatted_price
     ActionController::Base.helpers.number_to_currency(price, unit: "₹", precision: 2)
@@ -115,17 +114,23 @@ class Product < ApplicationRecord
   end
 
   def in_stock?
-    inventory_count.positive?
+    product_variants.any? { |variant| variant.available_stock.positive? }
   end
 
   def variant_in_stock?(color, size)
     variant = product_variants.find_by(color: color, size: size)
-    variant&.inventory_count.to_i.positive?
+    variant&.available_stock.to_i.positive?
   end
 
   def available_stock(color, size)
     variant = product_variants.find_by(color: color, size: size)
-    variant&.inventory_count.to_i
+    variant&.available_stock.to_i
+  end
+
+  def update_inventory_count
+    # Update the total inventory count based on variants' available stock
+    total = product_variants.sum(&:available_stock)
+    update_column(:inventory_count, total) if inventory_count != total
   end
 
   private
@@ -140,11 +145,5 @@ class Product < ApplicationRecord
     subscribers.find_each do |subscriber|
       ProductMailer.with(product: self, subscriber: subscriber).in_stock.deliver_later
     end
-  end
-
-  def update_inventory_count
-    # Update the total inventory count based on variants
-    total = product_variants.sum(:inventory_count)
-    update_column(:inventory_count, total) if inventory_count != total
   end
 end

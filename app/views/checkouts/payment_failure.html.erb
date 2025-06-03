@@ -1,0 +1,6 @@
+<h1>Payment Failed</h1>
+
+<p>There was an issue processing your payment. Please try again.</p>
+ 
+<%= link_to 'Try Payment Again', payment_order_path(@order), class: 'btn btn-primary' if @order %>
+<%= link_to 'View Cart', cart_path, class: 'btn btn-secondary' %> 

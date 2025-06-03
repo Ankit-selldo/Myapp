@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_15_000003) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_02_070832) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -73,10 +73,29 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_15_000003) do
   end
 
   create_table "carts", force: :cascade do |t|
-    t.bigint "user_id", null: false
+    t.bigint "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "coupon_id"
+    t.string "session_id"
+    t.index ["coupon_id"], name: "index_carts_on_coupon_id"
     t.index ["user_id"], name: "index_carts_on_user_id"
+  end
+
+  create_table "coupons", force: :cascade do |t|
+    t.string "code", null: false
+    t.string "description"
+    t.decimal "discount_amount", precision: 10, scale: 2
+    t.decimal "minimum_order_amount", precision: 10, scale: 2
+    t.integer "discount_type", default: 0
+    t.integer "usage_limit"
+    t.integer "used_count", default: 0
+    t.datetime "starts_at"
+    t.datetime "expires_at"
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_coupons_on_code", unique: true
   end
 
   create_table "discounts", force: :cascade do |t|
@@ -132,9 +151,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_15_000003) do
     t.decimal "total_price", precision: 10, scale: 2, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "product_variant_id", null: false
     t.index ["order_id", "product_id"], name: "index_order_items_on_order_id_and_product_id"
     t.index ["order_id"], name: "index_order_items_on_order_id"
     t.index ["product_id"], name: "index_order_items_on_product_id"
+    t.index ["product_variant_id"], name: "index_order_items_on_product_variant_id"
   end
 
   create_table "orders", force: :cascade do |t|
@@ -147,10 +168,38 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_15_000003) do
     t.datetime "updated_at", null: false
     t.integer "status", default: 0, null: false
     t.integer "payment_status", default: 0, null: false
+    t.string "payment_method"
+    t.decimal "cod_fee", precision: 10, scale: 2, default: "0.0"
+    t.string "shipping_name"
+    t.string "shipping_city"
+    t.string "shipping_state"
+    t.string "shipping_postal_code"
+    t.string "shipping_country"
+    t.string "phone"
+    t.string "email"
+    t.bigint "coupon_id"
+    t.decimal "discount_amount", precision: 10, scale: 2, default: "0.0"
+    t.string "payment_request_id"
+    t.string "payment_intent_id"
+    t.index ["coupon_id"], name: "index_orders_on_coupon_id"
     t.index ["number"], name: "index_orders_on_number", unique: true
     t.index ["payment_status"], name: "index_orders_on_payment_status"
     t.index ["status"], name: "index_orders_on_status"
     t.index ["user_id"], name: "index_orders_on_user_id"
+  end
+
+  create_table "payments", force: :cascade do |t|
+    t.bigint "order_id", null: false
+    t.bigint "user_id", null: false
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.string "payment_id", null: false
+    t.string "status", null: false
+    t.jsonb "payment_details"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_id"], name: "index_payments_on_order_id"
+    t.index ["payment_id"], name: "index_payments_on_payment_id", unique: true
+    t.index ["user_id"], name: "index_payments_on_user_id"
   end
 
   create_table "product_variants", force: :cascade do |t|
@@ -163,6 +212,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_15_000003) do
     t.boolean "active", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "discount_price", precision: 10, scale: 2
+    t.decimal "price", precision: 10, scale: 2, default: "0.0", null: false
     t.index ["product_id", "size", "color"], name: "index_product_variants_on_product_id_and_size_and_color", unique: true
     t.index ["product_id"], name: "index_product_variants_on_product_id"
     t.index ["sku"], name: "index_product_variants_on_sku", unique: true
@@ -242,6 +293,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_15_000003) do
     t.string "otp"
     t.datetime "otp_sent_at"
     t.boolean "admin", default: false, null: false
+    t.string "phone"
+    t.string "address"
+    t.string "city"
+    t.string "state"
+    t.string "postal_code"
+    t.string "country"
     t.index ["admin"], name: "index_users_on_admin"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
@@ -252,14 +309,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_15_000003) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "blog_posts", "users", column: "author_id"
+  add_foreign_key "carts", "coupons"
   add_foreign_key "carts", "users"
   add_foreign_key "discounts_products", "discounts"
   add_foreign_key "discounts_products", "products"
   add_foreign_key "line_items", "carts"
   add_foreign_key "line_items", "product_variants"
   add_foreign_key "order_items", "orders"
+  add_foreign_key "order_items", "product_variants"
   add_foreign_key "order_items", "products"
+  add_foreign_key "orders", "coupons"
   add_foreign_key "orders", "users"
+  add_foreign_key "payments", "orders"
+  add_foreign_key "payments", "users"
   add_foreign_key "product_variants", "products"
   add_foreign_key "products", "users"
   add_foreign_key "sessions", "users"

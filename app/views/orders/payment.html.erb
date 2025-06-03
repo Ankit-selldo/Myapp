@@ -1,0 +1,163 @@
+<% content_for :head do %>
+  <script src="https://js.stripe.com/v3/"></script>
+  <meta name="stripe-publishable-key" content="<%= Rails.configuration.stripe[:publishable_key] %>">
+<% end %>
+
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold mb-6">Choose Payment Method</h1>
+  
+  <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
+    <div class="mb-6">
+      <h2 class="text-lg font-semibold mb-2">Order #<%= @order.number %></h2>
+      <p class="text-2xl font-bold text-gray-800">Total: <%= number_to_currency(@order.total_amount, unit: "₹") %></p>
+    </div>
+
+    <% if @order.order_items.any? %>
+      <div class="mb-6 border-t pt-4">
+        <h3 class="font-semibold mb-2">Order Items:</h3>
+        <% @order.order_items.each do |item| %>
+          <div class="flex justify-between py-2">
+            <span><%= item.product.name %> x <%= item.quantity %></span>
+            <span><%= number_to_currency(item.total_price, unit: "₹") %></span>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="space-y-4">
+      <!-- Cash on Delivery Option -->
+      <%= link_to payment_callback_order_path(@order, payment_method: 'cod'), 
+          class: "block w-full bg-green-500 text-white text-center py-3 px-4 rounded hover:bg-green-600 transition duration-200",
+          data: { turbo: false } do %>
+        <i class="fas fa-money-bill-wave mr-2"></i>
+        Cash on Delivery (+ ₹50 COD fee)
+      <% end %>
+
+      <!-- Online Payment Option -->
+      <% if @client_secret.present? %>
+        <button id="pay-online-btn" 
+                class="block w-full bg-blue-500 text-white text-center py-3 px-4 rounded hover:bg-blue-600 transition duration-200 cursor-pointer"
+                onclick="showStripeForm()">
+          <i class="fas fa-credit-card mr-2"></i>
+          Pay Online with Card
+        </button>
+        
+        <div id="stripe-form-container" class="hidden mt-4">
+          <%= form_with url: payment_callback_order_path(@order), method: :post, 
+                        id: "payment-form", data: { turbo: false } do |f| %>
+            <%= hidden_field_tag :payment_method, 'online' %>
+            <%= hidden_field_tag :payment_intent_id, '', id: 'payment_intent_id' %>
+            
+            <div id="card-element" class="p-3 border rounded mb-4">
+              <!-- Stripe Card Element will be inserted here -->
+            </div>
+            
+            <div id="card-errors" class="text-red-500 mb-4" role="alert"></div>
+            
+            <button type="submit" 
+                    class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200"
+                    id="submit-button">
+              Pay <%= number_to_currency(@order.total_amount, unit: "₹") %>
+            </button>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="text-red-500">
+          Unable to initialize payment system. Please try again later.
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<%= content_for :scripts do %>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Initializing Stripe payment form...');
+      
+      const stripe = Stripe('<%= Rails.configuration.stripe[:publishable_key] %>');
+      const elements = stripe.elements();
+      const card = elements.create('card', {
+        style: {
+          base: {
+            fontSize: '16px',
+            color: '#32325d',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+            '::placeholder': {
+              color: '#aab7c4'
+            }
+          },
+          invalid: {
+            color: '#fa755a',
+            iconColor: '#fa755a'
+          }
+        }
+      });
+
+      // Mount the card element
+      card.mount('#card-element');
+      console.log('Card element mounted');
+
+      // Handle real-time validation errors
+      card.addEventListener('change', function(event) {
+        const displayError = document.getElementById('card-errors');
+        if (event.error) {
+          console.log('Card validation error:', event.error);
+          displayError.textContent = event.error.message;
+        } else {
+          displayError.textContent = '';
+        }
+      });
+
+      // Handle form submission
+      const form = document.getElementById('payment-form');
+      form.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        console.log('Form submitted, starting payment process...');
+        
+        const submitButton = document.getElementById('submit-button');
+        const errorElement = document.getElementById('card-errors');
+        
+        submitButton.disabled = true;
+        submitButton.textContent = 'Processing...';
+        errorElement.textContent = '';
+
+        try {
+          console.log('Confirming card payment with client secret:', '<%= @client_secret %>');
+          const { paymentIntent, error } = await stripe.confirmCardPayment('<%= @client_secret %>', {
+            payment_method: {
+              card: card,
+              billing_details: {
+                name: '<%= current_user.name %>',
+                email: '<%= current_user.email %>'
+              }
+            }
+          });
+
+          if (error) {
+            console.error('Payment error:', error);
+            errorElement.textContent = error.message;
+            submitButton.disabled = false;
+            submitButton.textContent = 'Pay <%= number_to_currency(@order.total_amount, unit: "₹") %>';
+          } else {
+            console.log('Payment succeeded:', paymentIntent);
+            document.getElementById('payment_intent_id').value = paymentIntent.id;
+            console.log('Submitting form with payment intent ID:', paymentIntent.id);
+            form.submit();
+          }
+        } catch (e) {
+          console.error('Payment processing error:', e);
+          errorElement.textContent = 'An error occurred while processing your payment. Please try again.';
+          submitButton.disabled = false;
+          submitButton.textContent = 'Pay <%= number_to_currency(@order.total_amount, unit: "₹") %>';
+        }
+      });
+    });
+
+    function showStripeForm() {
+      console.log('Showing Stripe form...');
+      document.getElementById('stripe-form-container').classList.remove('hidden');
+      document.getElementById('pay-online-btn').classList.add('hidden');
+    }
+  </script>
+<% end %> 

@@ -1,5 +1,5 @@
+# allow_unauthenticated_access # Removed because authenticate is not a global callback anymore
 class SubscribersController < ApplicationController
-  allow_unauthenticated_access
   before_action :set_product
 
   def create

@@ -7,11 +7,11 @@ Rails.application.config.assets.version = "1.0"
 # Rails.application.config.assets.paths << Emoji.images_path
 
 # Precompile additional assets.
-Rails.application.config.assets.precompile += %w[ application.css application.js ]
+Rails.application.config.assets.precompile += %w[ application.css application.js payment.js ]
 
 # Enable the asset pipeline
 Rails.application.config.assets.enabled = true
 
 # Add additional paths to the asset pipeline
 Rails.application.config.assets.paths << Rails.root.join("app", "assets", "stylesheets")
-Rails.application.config.assets.paths << Rails.root.join("app", "assets", "javascript")
+Rails.application.config.assets.paths << Rails.root.join("app", "assets", "javascripts")

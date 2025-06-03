@@ -4,6 +4,11 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  has_one_attached :avatar do |attachable|
+    attachable.variant :thumb, resize_to_fill: [40, 40]
+    attachable.variant :medium, resize_to_fill: [100, 100]
+  end
+
   has_one :cart, dependent: :destroy
   has_many :sessions, dependent: :destroy
   has_many :products, dependent: :destroy
@@ -19,6 +24,7 @@ class User < ApplicationRecord
               message: "must be a valid email address (e.g., user@example.com)"
             },
             length: { maximum: 255 }
+  validates :phone, format: { with: /\A\d{10}\z/, message: "must be a 10-digit number" }, allow_blank: true
 
   enum :role, { customer: 0, admin: 1 }, default: :customer
 
@@ -28,6 +34,20 @@ class User < ApplicationRecord
   scope :admins, -> { where(role: :admin) }
   scope :editors, -> { where(role: :editor) }
   scope :regular_users, -> { where(role: :user) }
+
+  # Build address from user's profile information
+  def build_address_from_profile
+    {
+      shipping_name: name,
+      shipping_address: address,
+      shipping_city: city,
+      shipping_state: state,
+      shipping_postal_code: postal_code,
+      shipping_country: country,
+      phone: phone,
+      email: email
+    }
+  end
 
   # Override Devise's find_first_by_auth_conditions method
   def self.find_first_by_auth_conditions(warden_conditions)

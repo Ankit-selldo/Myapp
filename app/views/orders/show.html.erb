@@ -1,0 +1,158 @@
+<%# Order Details Page %>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">Order Details</h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">Order #<%= @order.id %></p>
+    </div>
+    
+    <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+        <%# Order Status %>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Status</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+              <%= case @order.status
+                  when 'processing'
+                    'bg-blue-100 text-blue-800'
+                  when 'completed'
+                    'bg-green-100 text-green-800'
+                  when 'cancelled'
+                    'bg-red-100 text-red-800'
+                  else
+                    'bg-gray-100 text-gray-800'
+                  end %>">
+              <%= @order.status.titleize %>
+            </span>
+          </dd>
+        </div>
+
+        <%# Payment Status %>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Payment Status</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+              <%= case @order.payment_status
+                  when 'paid'
+                    'bg-green-100 text-green-800'
+                  when 'pending_payment'
+                    'bg-yellow-100 text-yellow-800'
+                  when 'failed'
+                    'bg-red-100 text-red-800'
+                  else
+                    'bg-gray-100 text-gray-800'
+                  end %>">
+              <%= @order.payment_status.titleize %>
+            </span>
+          </dd>
+        </div>
+
+        <%# Payment Method %>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Payment Method</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <%= @order.payment_method.titleize %>
+            <% if @order.payment_method == 'cod' %>
+              <span class="text-xs text-gray-500">(₹50 additional fee)</span>
+            <% end %>
+          </dd>
+        </div>
+
+        <%# Order Date %>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Order Date</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <%= @order.created_at.strftime("%B %d, %Y") %>
+          </dd>
+        </div>
+
+        <%# Shipping Information %>
+        <div class="sm:col-span-2">
+          <dt class="text-sm font-medium text-gray-500">Shipping Information</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <address class="not-italic">
+              <%= @order.shipping_name %><br>
+              <%= @order.shipping_address %><br>
+              <%= @order.shipping_city %>, <%= @order.shipping_state %> <%= @order.shipping_postal_code %><br>
+              <%= @order.shipping_country %><br>
+              Phone: <%= @order.phone %><br>
+              Email: <%= @order.email %>
+            </address>
+          </dd>
+        </div>
+
+        <%# Order Items %>
+        <div class="sm:col-span-2">
+          <dt class="text-sm font-medium text-gray-500 mb-3">Order Items</dt>
+          <dd class="mt-1">
+            <div class="border rounded-lg overflow-hidden">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variant</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <% @order.order_items.each do |item| %>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <%= item.product.name %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <%= item.product_variant.color %> / <%= item.product_variant.size %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                        <%= number_to_currency(item.product_variant.final_price, unit: "₹") %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                        <%= item.quantity %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                        <%= number_to_currency(item.total_price, unit: "₹") %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+                <tfoot class="bg-gray-50">
+                  <tr>
+                    <td colspan="4" class="px-6 py-3 text-right text-sm font-medium text-gray-500">Subtotal</td>
+                    <td class="px-6 py-3 text-right text-sm text-gray-900">
+                      <%= number_to_currency(@order.total_amount - (@order.cod_fee || 0), unit: "₹") %>
+                    </td>
+                  </tr>
+                  <% if @order.payment_method == 'cod' %>
+                    <tr>
+                      <td colspan="4" class="px-6 py-3 text-right text-sm font-medium text-gray-500">COD Fee</td>
+                      <td class="px-6 py-3 text-right text-sm text-gray-900">
+                        <%= number_to_currency(@order.cod_fee, unit: "₹") %>
+                      </td>
+                    </tr>
+                  <% end %>
+                  <tr class="border-t-2 border-gray-200">
+                    <td colspan="4" class="px-6 py-3 text-right text-sm font-medium text-gray-900">Total</td>
+                    <td class="px-6 py-3 text-right text-sm font-bold text-gray-900">
+                      <%= number_to_currency(@order.total_amount, unit: "₹") %>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <%# Back Button %>
+  <div class="mt-6">
+    <%= link_to orders_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+      <i class="fas fa-arrow-left mr-2 -ml-1"></i>
+      Back to Orders
+    <% end %>
+  </div>
+</div> 

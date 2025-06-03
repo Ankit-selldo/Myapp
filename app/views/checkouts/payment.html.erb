@@ -1,0 +1,146 @@
+<%# Payment Page %>
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold mb-6">Payment Details</h1>
+          
+          <% if flash[:alert].present? %>
+            <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+              <div class="flex">
+                <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+          </svg>
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm text-red-700"><%= flash[:alert] %></p>
+                </div>
+              </div>
+            </div>
+          <% end %>
+
+  <div class="bg-white shadow rounded-lg p-6 mb-6">
+    <h2 class="text-lg font-semibold mb-4">Order Summary</h2>
+            <div class="space-y-4">
+      <% @order_items.each do |item| %>
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="font-medium"><%= item.product.name %></p>
+            <p class="text-sm text-gray-600">
+              <%= item.product_variant.color %> / <%= item.product_variant.size %>
+              x <%= item.quantity %>
+            </p>
+                </div>
+          <p class="font-medium">₹<%= item.total_price %></p>
+                </div>
+      <% end %>
+      
+      <div class="border-t pt-4">
+        <div class="flex justify-between items-center font-bold">
+          <p>Total Amount</p>
+          <p>₹<%= @total_amount %></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+  <div class="bg-white shadow rounded-lg p-6">
+    <h2 class="text-lg font-semibold mb-4">Payment Method</h2>
+    
+    <%= form_tag payment_callback_order_path(@order), 
+        id: 'payment-form', 
+        class: 'space-y-6',
+        data: { 
+          controller: 'stripe',
+          stripe_publishable_key_value: Rails.configuration.stripe[:publishable_key],
+          stripe_order_id_value: @order.id,
+          stripe_amount_value: @total_amount,
+          action: 'submit->stripe#handleSubmit',
+          stripe_target: 'form'
+        } do %>
+      
+      <%# Payment Method Selection %>
+      <div class="space-y-4">
+        <div class="flex items-center">
+          <input type="radio" id="payment_online" name="payment_method" value="online" class="h-4 w-4 text-blue-600 focus:ring-blue-500" checked>
+          <label for="payment_online" class="ml-3 block text-sm font-medium text-gray-700">
+            Pay Online (Credit/Debit Card)
+          </label>
+        </div>
+        
+        <div class="flex items-center">
+          <input type="radio" id="payment_cod" name="payment_method" value="cod" class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+          <label for="payment_cod" class="ml-3 block text-sm font-medium text-gray-700">
+            Cash on Delivery (₹<%= @total_amount %>)
+          </label>
+          </div>
+      </div>
+
+      <%= hidden_field_tag :payment_intent_id, '', id: 'payment_intent_id' %>
+
+      <%# Online Payment Section %>
+      <div id="online-payment-section" class="space-y-6">
+        <div data-stripe-target="cardElement" class="p-4 border rounded-md">
+          <!-- Stripe Elements will be inserted here -->
+        </div>
+        <div data-stripe-target="cardErrors" class="text-red-600 text-sm mt-2" role="alert"></div>
+                    </div>
+
+      <%# COD Information Section %>
+      <div id="cod-section" class="space-y-6" style="display: none;">
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+                      </div>
+            <div class="ml-3">
+              <p class="text-sm text-yellow-700">
+                You will be charged ₹<%= @total_amount %> when your order is delivered.
+                      </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <button type="submit" 
+              data-stripe-target="submitButton"
+              class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        <span id="button-text">Pay ₹<%= @total_amount %></span>
+      </button>
+    <% end %>
+  </div>
+</div>
+
+<% content_for :head do %>
+  <script src="https://js.stripe.com/v3/"></script>
+  <meta name="user-name" content="<%= current_user.name %>">
+  <meta name="user-email" content="<%= current_user.email %>">
+<% end %>
+
+<% content_for :scripts do %>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const paymentMethodInputs = document.querySelectorAll('input[name="payment_method"]');
+      const onlinePaymentSection = document.getElementById('online-payment-section');
+      const codSection = document.getElementById('cod-section');
+      const submitButton = document.querySelector('[data-stripe-target="submitButton"]');
+      const buttonText = document.getElementById('button-text');
+
+      paymentMethodInputs.forEach(input => {
+        input.addEventListener('change', function() {
+          if (this.value === 'online') {
+            onlinePaymentSection.style.display = 'block';
+            codSection.style.display = 'none';
+            buttonText.textContent = 'Pay ₹<%= @total_amount %>';
+            submitButton.className = 'w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2';
+          } else {
+            onlinePaymentSection.style.display = 'none';
+            codSection.style.display = 'block';
+            buttonText.textContent = 'Place Order (Cash on Delivery)';
+            submitButton.className = 'w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2';
+          }
+        });
+      });
+    });
+  </script>
+<% end %> 

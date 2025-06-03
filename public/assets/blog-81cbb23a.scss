@@ -1,0 +1,449 @@
+// Blog styles
+.blog-hero {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 4rem 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+
+  .hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+
+    h1 {
+      font-size: 2.5rem;
+      color: #2d3436;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      color: #636e72;
+      margin-bottom: 2rem;
+    }
+  }
+
+  .search-container {
+    max-width: 600px;
+    margin: 0 auto;
+
+    .search-form {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 0.8rem 1.2rem;
+      border: 2px solid #dfe6e9;
+      border-radius: 25px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+
+      &:focus {
+        outline: none;
+        border-color: #74b9ff;
+      }
+    }
+
+    .search-button {
+      background: #74b9ff;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      padding: 0.8rem 1.5rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background: #0984e3;
+      }
+    }
+  }
+}
+
+// Sticky Category Navigation
+.category-nav {
+  background: white;
+  border-bottom: 1px solid #dfe6e9;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0.5rem 0;
+  transition: box-shadow 0.3s ease;
+
+  &.is-sticky {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .category-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .categories {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+
+    li a {
+      color: #636e72;
+      text-decoration: none;
+      font-size: 0.9rem;
+      padding: 0.5rem 0;
+      position: relative;
+      white-space: nowrap;
+
+      &.active, &:hover {
+        color: #0984e3;
+
+        &:after {
+          content: '';
+          position: absolute;
+          bottom: -0.5rem;
+          left: 0;
+          width: 100%;
+          height: 2px;
+          background: #0984e3;
+        }
+      }
+    }
+  }
+
+  .category-dropdown {
+    position: relative;
+
+    .dropdown-toggle {
+      background: none;
+      border: none;
+      color: #636e72;
+      cursor: pointer;
+      padding: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      &:hover {
+        color: #0984e3;
+      }
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      right: 0;
+      top: 100%;
+      background: white;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 0.5rem 0;
+      min-width: 200px;
+      display: none;
+
+      &.show {
+        display: block;
+      }
+
+      li a {
+        display: block;
+        padding: 0.5rem 1rem;
+        color: #636e72;
+        text-decoration: none;
+
+        &:hover {
+          background: #f8f9fa;
+          color: #0984e3;
+        }
+      }
+    }
+  }
+}
+
+// Featured Posts Section
+.featured-posts {
+  padding: 3rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  h2 {
+    font-size: 1.8rem;
+    color: #2d3436;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .featured-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .featured-post {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .featured-image {
+      height: 200px;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      &:hover img {
+        transform: scale(1.05);
+      }
+    }
+  }
+}
+
+// Main Blog Grid
+.blog-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .blog-post {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-3px);
+    }
+
+    .post-image {
+      height: 200px;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .post-content {
+      padding: 1.5rem;
+
+      .category-tag {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        background: #e3f2fd;
+        color: #1976d2;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        margin-bottom: 1rem;
+      }
+
+      h2 {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+        line-height: 1.4;
+
+        a {
+          color: #2d3436;
+          text-decoration: none;
+
+          &:hover {
+            color: #0984e3;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Post Meta
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #636e72;
+
+  .author {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .author-avatar {
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  }
+
+  .meta-details {
+    display: flex;
+    gap: 1rem;
+  }
+}
+
+// Newsletter Section
+.newsletter-section {
+  background: linear-gradient(135deg, #6c5ce7 0%, #a8a4e6 100%);
+  padding: 3rem 1rem;
+  margin-top: 3rem;
+  color: white;
+  text-align: center;
+
+  .newsletter-content {
+    max-width: 600px;
+    margin: 0 auto;
+
+    h3 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
+  }
+
+  .newsletter-form {
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .newsletter-input {
+      flex: 1;
+      padding: 0.8rem 1.2rem;
+      border: none;
+      border-radius: 25px;
+      font-size: 1rem;
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
+      }
+    }
+
+    .newsletter-button {
+      background: #2d3436;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      padding: 0.8rem 1.5rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background: #636e72;
+      }
+    }
+
+    .message {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+
+      &--success {
+        background-color: rgba(72, 187, 120, 0.1);
+        color: #2f855a;
+        border: 1px solid rgba(72, 187, 120, 0.2);
+      }
+
+      &--error {
+        background-color: rgba(245, 101, 101, 0.1);
+        color: #c53030;
+        border: 1px solid rgba(245, 101, 101, 0.2);
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .blog-hero {
+    padding: 3rem 1rem;
+
+    h1 {
+      font-size: 2rem;
+    }
+  }
+
+  .category-nav {
+    .categories {
+      gap: 1rem;
+    }
+  }
+
+  .featured-posts {
+    .featured-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .blog-grid {
+    .grid-container {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .newsletter-section {
+    .newsletter-form {
+      .input-group {
+        flex-direction: column;
+      }
+
+      .newsletter-button {
+        width: 100%;
+      }
+    }
+  }
+}
+
+// Admin Actions
+.admin-actions {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  text-align: right;
+
+  .button {
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    background: #0984e3;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background: #0870c0;
+    }
+  }
+} 

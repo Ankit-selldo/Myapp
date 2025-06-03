@@ -16,27 +16,7 @@ module Devise
   end
 end
 
-# Patch Devise parameter sanitizer to handle email
-Devise::ParameterSanitizer.class_eval do
-  private
+# REMOVE ALL PATCHES TO Devise::ParameterSanitizer
+# If you need to customize permitted parameters, do it in ApplicationController#configure_permitted_parameters only.
 
-  def sign_up
-    default_params.permit(auth_keys + [:password, :password_confirmation, :name] + [:remember_me])
-  end
-
-  def sign_in
-    default_params.permit(auth_keys + [:password, :remember_me])
-  end
-
-  def account_update
-    default_params.permit(auth_keys + [:password, :password_confirmation, :current_password])
-  end
-
-  def default_params
-    @default_params ||= begin
-      params = %i(password password_confirmation)
-      params.push(:email, :remember_me)
-      params
-    end
-  end
-end 
+ 

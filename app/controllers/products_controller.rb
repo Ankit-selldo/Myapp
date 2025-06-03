@@ -2,12 +2,12 @@ class ProductsController < ApplicationController
   include Authorization
   
   before_action :set_product, only: [:show, :edit, :update, :destroy, :add_to_cart]
-  before_action :authenticate, only: [:add_to_cart]
+  before_action :authenticate_user!, only: [:add_to_cart]
   before_action :require_admin, only: [:new, :create, :edit, :update, :destroy]
   
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
-  skip_before_action :authenticate, only: [:index, :show]
+  skip_before_action :authenticate_user!, only: [:index, :show]
 
   def index
     @categories = Product::CATEGORIES
@@ -114,11 +114,11 @@ class ProductsController < ApplicationController
       return
     end
 
-    # Ensure user has a cart
-    current_user.cart ||= Cart.create(user: current_user)
+    # Get or create cart
+    cart = current_cart
     
     # Find or initialize line item
-    line_item = current_user.cart.line_items.find_or_initialize_by(product_variant: variant)
+    line_item = cart.line_items.find_or_initialize_by(product_variant: variant)
     
     if line_item.new_record?
       line_item.quantity = quantity

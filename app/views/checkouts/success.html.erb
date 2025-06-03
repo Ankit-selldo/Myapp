@@ -1,0 +1,71 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="bg-white rounded-lg shadow-lg p-6">
+    <div class="text-center mb-8">
+      <svg class="mx-auto h-16 w-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      <h1 class="mt-4 text-2xl font-bold text-gray-900">Order Confirmed!</h1>
+      <p class="mt-2 text-gray-600">Thank you for your purchase. Your order has been successfully placed.</p>
+    </div>
+
+    <div class="border-t border-gray-200 pt-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Order Details</h2>
+      <div class="space-y-4">
+        <div class="flex justify-between">
+          <span class="text-gray-600">Order Number:</span>
+          <span class="font-medium"><%= @order.id %></span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">Order Date:</span>
+          <span class="font-medium"><%= @order.created_at.strftime("%B %d, %Y") %></span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">Payment Status:</span>
+          <span class="font-medium"><%= @order.payment_status.titleize %></span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">Order Status:</span>
+          <span class="font-medium"><%= @order.status.titleize %></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-200 pt-6 mt-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Order Items</h2>
+      <div class="space-y-4">
+        <% @order_items.each do |item| %>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <% if item.product_variant&.images&.attached? %>
+                <%= image_tag item.product_variant.images.first, class: "h-16 w-16 object-cover rounded" %>
+              <% end %>
+              <div class="ml-4">
+                <h3 class="text-sm font-medium text-gray-900"><%= item.product.name %></h3>
+                <% if item.product_variant %>
+                  <p class="text-sm text-gray-500"><%= item.product_variant.name %></p>
+                <% end %>
+                <p class="text-sm text-gray-500">Quantity: <%= item.quantity %></p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-medium text-gray-900">₹<%= item.price %></p>
+              <p class="text-sm text-gray-500">Total: ₹<%= item.total_price %></p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-200 pt-6 mt-6">
+      <div class="flex justify-between items-center">
+        <span class="text-lg font-semibold text-gray-900">Total Amount:</span>
+        <span class="text-xl font-bold text-gray-900">₹<%= @total_amount %></span>
+      </div>
+    </div>
+
+    <div class="mt-8 flex justify-center space-x-4">
+      <%= link_to "Continue Shopping", products_path, class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
+      <%= link_to "View Order", order_path(@order), class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+    </div>
+  </div>
+</div> 

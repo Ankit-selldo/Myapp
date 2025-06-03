@@ -1,0 +1,6 @@
+<h1>Payment Successful!</h1>
+
+<p>Thank you for your order. Your payment was processed successfully.</p>
+ 
+<%= link_to 'View Order', @order, class: 'btn btn-primary' if @order %>
+<%= link_to 'Continue Shopping', products_path, class: 'btn btn-secondary' %> 
