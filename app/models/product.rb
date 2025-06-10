@@ -1,5 +1,5 @@
 class Product < ApplicationRecord
-  include Notifications
+  
   include ProductImageProcessable
   
   belongs_to :user
@@ -128,7 +128,7 @@ class Product < ApplicationRecord
   end
 
   def update_inventory_count
-    # Update the total inventory count based on variants' available stock
+    # Update the total inventory count based on variants and their available stock
     total = product_variants.sum(&:available_stock)
     update_column(:inventory_count, total) if inventory_count != total
   end

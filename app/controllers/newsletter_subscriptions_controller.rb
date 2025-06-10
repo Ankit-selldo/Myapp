@@ -14,4 +14,4 @@ class NewsletterSubscriptionsController < ApplicationController
       end
     end
   end
-end 
+end

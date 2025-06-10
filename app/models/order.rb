@@ -49,6 +49,7 @@ class Order < ApplicationRecord
   after_save :increment_coupon_usage, if: :coupon_id_previously_changed?
   after_save :update_inventory, if: :saved_change_to_status?
 
+  #custom reusable queries 
   scope :completed, -> { where(status: [:shipped, :delivered]) }
   scope :recent, -> { order(created_at: :desc) }
   scope :pending, -> { where(status: :pending) }
@@ -57,6 +58,7 @@ class Order < ApplicationRecord
   scope :delivered, -> { where(status: :delivered) }
   scope :cancelled, -> { where(status: :cancelled) }
 
+  #return user friendly status 
   def status_label
     status.to_s.humanize
   end

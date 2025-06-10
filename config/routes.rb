@@ -4,6 +4,10 @@ Rails.application.routes.draw do
     sessions: 'sessions',
     registrations: 'registrations',
     passwords: 'passwords'
+  }, path: '', path_names: {
+    sign_up: 'signup',
+    sign_in: 'login',
+    sign_out: 'logout'
   }
   
   # Admin routes
@@ -61,15 +65,16 @@ Rails.application.routes.draw do
     resources :coupons
   end
 
-  # User routes
-  resources :products, only: [:index, :show] do
+  # Product routes
+  resources :products, only: [:index, :show] do  
     member do
       post :add_to_cart
     end
     resources :subscribers, only: [:create]
   end
 
-  resource :cart, only: [:show, :update, :destroy] do
+  # Cart routes
+  resource :cart, only: [:show, :update, :destroy] do 
     get 'add/:product_variant_id', to: 'carts#add', as: :add_to
     delete 'remove/:line_item_id', to: 'carts#remove', as: :remove_from
     patch 'update/:line_item_id', to: 'carts#update', as: :update_item
@@ -78,7 +83,7 @@ Rails.application.routes.draw do
   resources :line_items, only: [:create, :update, :destroy]
   
   # Checkout routes
-  get '/checkout', to: 'checkouts#new'
+  get '/checkout', to: 'checkouts#new'    
   post '/checkout', to: 'checkouts#create', as: :process_checkout
   get '/checkout/success', to: 'checkouts#success', as: :checkout_success
   get '/checkout/cancel', to: 'checkouts#cancel', as: :checkout_cancel
@@ -99,6 +104,8 @@ Rails.application.routes.draw do
   get 'shipping-policy', to: 'pages#shipping_policy', as: :shipping_policy
   get 'returns', to: 'pages#returns', as: :returns
   get 'faq', to: 'pages#faq', as: :faq
+  get 'terms', to: 'pages#terms', as: :terms
+  get 'privacy', to: 'pages#privacy', as: :privacy
 
   root 'home#index'
 
@@ -113,7 +120,6 @@ Rails.application.routes.draw do
   resources :newsletter_subscriptions, only: [:create]
   
   # Registration routes
-  resources :registrations, only: [:new, :create], path: 'signup', path_names: { new: '' }
   get 'verify-email', to: 'registrations#verify_email'
   post 'verify-email', to: 'registrations#verify'
   post 'resend-otp', to: 'registrations#resend_otp'

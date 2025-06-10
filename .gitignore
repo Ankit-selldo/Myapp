@@ -26,3 +26,31 @@ dist-ssr
 
 /config/master.key
 .env
+
+# Ignore bundler config
+/.bundle
+
+# Ignore log files and temp files
+/log/*
+/tmp/*
+
+# Ignore cache
+/cache/*
+
+# Ignore system files
+.DS_Store
+
+# Ignore bootsnap cache
+/tmp/cache/bootsnap/*
+
+# Ignore pid files
+/tmp/pids/*
+
+# Ignore byebug command history file.
+.byebug_history
+
+# Ignore node modules
+/node_modules
+
+# Ignore dotenv environment variable files
+.env*

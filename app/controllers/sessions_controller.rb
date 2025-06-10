@@ -4,8 +4,9 @@ class SessionsController < Devise::SessionsController
   # skip_before_action :authenticate, only: [:new, :create]
 
   def new
-    @resource = User.new
-    render :new
+    self.resource = resource_class.new(sign_in_params)
+    store_location_for(resource, params[:redirect_to])
+    super
   end
   
   
@@ -16,5 +17,11 @@ class SessionsController < Devise::SessionsController
 
   def destroy
     super
+  end
+
+  protected
+
+  def sign_in_params
+    devise_parameter_sanitizer.sanitize(:sign_in)
   end
 end

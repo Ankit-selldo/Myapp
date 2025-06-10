@@ -14,7 +14,7 @@ class ProductVariant < ApplicationRecord
   validates :price, numericality: { greater_than_or_equal_to: 0 }
   validates :discount_price, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
 
-  before_validation :generate_sku, on: :create
+  before_validation :generate_sku, on: :create  #Stock Keeping Unit
   before_save :update_product_inventory
   before_save :set_price_from_product
 

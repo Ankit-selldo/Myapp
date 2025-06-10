@@ -5,9 +5,9 @@ class ProductsController < ApplicationController
   before_action :authenticate_user!, only: [:add_to_cart]
   before_action :require_admin, only: [:new, :create, :edit, :update, :destroy]
   
-  rescue_from ActiveRecord::RecordNotFound, with: :not_found
+  rescue_from ActiveRecord::RecordNotFound, with: :not_found #custom error handling 
 
-  skip_before_action :authenticate_user!, only: [:index, :show]
+  skip_before_action :authenticate_user!, only: [:index, :show] 
 
   def index
     @categories = Product::CATEGORIES
@@ -16,11 +16,11 @@ class ProductsController < ApplicationController
                       .with_attached_image
                       .by_category(@category)
                       .search(params[:search])
-                      .latest
+                      .latest 
   end
 
-  def show
-    @product = Product.includes(:product_variants)
+  def show      
+    @product = Product.includes(:product_variants)  
                      .with_attached_image
                      .with_attached_images
                      .find(params[:id])

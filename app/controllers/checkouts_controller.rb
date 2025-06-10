@@ -70,7 +70,7 @@ class CheckoutsController < ApplicationController
     @total_amount = @order.total_amount
   end
 
-  def payment_callback
+  def payment_callback   #logger is used to log the payment callback
     Rails.logger.info "Payment callback received with params: #{params.inspect}"
     Rails.logger.info "Payment method: #{params[:payment_method]}, Payment Intent ID: #{params[:payment_intent_id]}"
 
